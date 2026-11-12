@@ -2,3 +2,4 @@ team     = "team-ghv"
 image    = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team-ghv-fraud-api@sha256:937ef32b4786cf88e2b3fa35761685d0710d321c7b396f2431214b8a07fa5bea"
 invokers = ["user:firstname@albertschool.com"]
 memory   = "1Gi"
+tx_topic = "projects/cymbal-fraudfinder/topics/ff-tx"

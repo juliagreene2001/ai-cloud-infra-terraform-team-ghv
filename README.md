@@ -47,3 +47,13 @@ Pull-request CI runs the mocked policy tests and guard tests without cloud crede
 See [operations](docs/OPERATIONS.md), [the English GHV assignment](docs/session-2.md), and
 [the anonymized session report](docs/report-session-2.md). Raw evidence, personal study notes,
 archives and local configuration are excluded from version control.
+
+## Session 3: next assignment
+
+The latest upstream instructions add authenticated Pub/Sub delivery, a `/pubsub` endpoint,
+retry/dead-letter observations and a separate report. Read [Session 3](docs/seance-3.md).
+The English [scaffold](docs/seance-3/pubsub.tf), [sample envelope](docs/seance-3/enveloppe.json)
+and [unfilled report](docs/seance-3/compte-rendu.md) retain the instructor's original paths.
+They are learning materials, not deployed resources.
+Only the unused `tx_topic` input is added to active configuration. Session 3 is not completed by
+this pull request. Its implementation belongs on the `Ali` branch with separate review.

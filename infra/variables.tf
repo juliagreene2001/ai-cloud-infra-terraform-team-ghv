@@ -13,8 +13,8 @@ variable "team" {
   type        = string
 
   validation {
-    condition     = var.team == "team-ghv"
-    error_message = "This repository belongs to team-ghv. Numeric team IDs are not this team's namespace."
+    condition     = can(regex("^team(-?[a-z0-9]+)+$", var.team)) && length(var.team) <= 20
+    error_message = "Use the instructor-assigned team identifier: team1, team-really-cool, team3, or team-ghv; at most 20 characters."
   }
 }
 
@@ -80,4 +80,10 @@ variable "create_team_account" {
   description = "Opt into the separate account/IAM exercise; the mandated course account remains the runtime identity."
   type        = bool
   default     = false
+}
+
+variable "tx_topic" {
+  description = "Full transaction topic ID for the Session 3 exercise; changing it replaces a subscription."
+  type        = string
+  default     = "projects/cymbal-fraudfinder/topics/ff-tx"
 }

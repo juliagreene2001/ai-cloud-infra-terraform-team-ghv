@@ -75,13 +75,25 @@ run "reject_other_team_image" {
   expect_failures = [var.image]
 }
 
-run "reject_numeric_team" {
+run "reject_invalid_team_name" {
   command = plan
   variables {
-    team  = "team1"
-    image = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team1-fraud-api:v1"
+    team  = "ghv"
+    image = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/ghv-fraud-api:v1"
   }
   expect_failures = [var.team]
+}
+
+run "accept_upstream_named_team_format" {
+  command = plan
+  variables {
+    team  = "team-really-cool"
+    image = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team-really-cool-fraud-api:v1"
+  }
+  assert {
+    condition     = google_cloud_run_v2_service.api.name == "team-really-cool-fraud-api"
+    error_message = "The upstream named-team validation must remain supported."
+  }
 }
 
 run "optional_account_exercise_is_explicit" {
