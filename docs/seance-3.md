@@ -1,281 +1,210 @@
-# Séance 3 — Brancher le service de scoring sur un flux de transactions
+# Session 3 — connect the scoring service to a transaction stream
 
-Deux heures, en équipe. Vous partez d'un service Cloud Run privé déployé par Terraform. Vous le
-branchez sur un topic Pub/Sub de transactions, vous le faites scorer chaque message, puis vous le
-regardez tenir la charge et écarter un message invalide.
+English adaptation of the latest instructor assignment, incorporated from upstream on 12 November
+2026. Original `seance-3` paths are retained for the instructor's synchronization check.
+**Status: instructions and scaffold only. Session 3 has not been implemented or deployed.**
 
-Dans tout l'énoncé, remplacez `team1` par votre identifiant d'équipe. Les commandes se lancent dans
-le Terminal sous macOS, dans le terminal Ubuntu (WSL 2) sous Windows.
+The assigned namespace is `team-ghv`. The existing private service is already managed through the
+shared GHV Terraform backend. Keep it: importing and repairing it has already been completed.
+Do not repeat the upstream template's delete/recreate instructions for this adopted service.
+All new implementation work belongs on branch `Ali` in both repositories.
 
-| Étape | Durée | Résultat |
+| Stage | Instructor timebox | Required result |
 | --- | --- | --- |
-| 0. Repartir d'un service déployé | 40 min | `team1-fraud-api` créé par `terraform apply` répond à un appel avec jeton |
-| 1. Brancher | 30 min | un abonnement push envoie chaque transaction du topic vers `/pubsub` |
-| 2. Adapter | 25 min | `/pubsub` score chaque message et écrit une ligne de log par message |
-| 3. Observer et casser | 20 min | montée en charge lue dans les métriques, un message lu en file de messages morts |
-| Compte rendu | 5 min | `docs/seance-3/compte-rendu.md` rempli et poussé |
+| 0. Check the deployed baseline | 40 min | Private GHV service: 403 anonymously, 200 with an authorized identity token |
+| 1. Connect Pub/Sub | 30 min | Authenticated push subscription delivers to `/pubsub`; failed messages can reach a dead-letter topic |
+| 2. Adapt the API | 25 min | Each valid message is scored, logged, then acknowledged with 204 |
+| 3. Observe load and failure | 20 min | Backlog/latency measurements and an invalid transaction recovered from dead-letter storage |
+| Report | 5 min | Fill `docs/seance-3/compte-rendu.md` with actual observations |
 
-**Règle des 40 minutes.** À la fin de l'étape 0, une personne de l'équipe commence l'étape 1, service
-déployé ou non, pendant que les autres finissent le déploiement. `pubsub.tf` ne s'applique qu'une fois
-le service créé.
+Instructor's 40-minute rule: one teammate starts the connection stage while others finish deployment;
+apply the Pub/Sub resources only after the service exists. Do not use placeholder report values as results.
 
-## Ce que vous saurez faire
+## Stage 0 — synchronize and verify the baseline
 
-| # | Compétence | Preuve attendue |
-| --- | --- | --- |
-| 1 | Déployer un service privé avec Terraform et l'appeler avec un jeton | votre `infra/main.tf` ; 403 sans jeton, 200 avec |
-| 2 | Relier un topic à un service par un push authentifié, avec un compte de service dédié au moindre privilège, et dire pourquoi un compte séparé | `team1-push` n'a que `roles/run.invoker` sur votre service ; votre réponse à la question 1.2 |
-| 3 | Acquitter après le travail et expliquer l'effet d'une nouvelle livraison | 204 renvoyé après le log ; votre réponse à la question 3.3 |
-| 4 | Lire le retard d'un abonnement et dire ce qui l'absorbe | courbes relevées à l'étape 3, lignes 2 et 3 du compte rendu |
-| 5 | Expliquer à quoi sert la file de messages morts, preuve à l'appui | le `tx_id` lu dans `team1-tx-dead-pull` |
+The fork's `main` has received the instructor's named-team validation and Session 3 materials.
+Merge current `origin/main` into `Ali` rather than discarding team commits. Preserve the complete
+private `infra/terraform.tfvars` invoker list. The correct settings are:
 
-## Étape 0 — Repartir d'un service déployé (40 min)
-
-Vous terminez votre tranche Terraform de la séance 2 (`infra/main.tf`, énoncé `docs/seance-2.md`,
-partie B). C'est votre travail qui est évalué : aucun corrigé n'est fourni.
-
-1. Committez votre travail en cours, puis sur GitHub cliquez **Sync fork** et lancez `git pull`. Vous
-   récupérez cet énoncé, le dossier `docs/seance-3/` et la variable `tx_topic`.
-2. Dans `infra/backend.tf`, le préfixe est votre identifiant d'équipe (`team1`).
-3. Choisissez l'image dans `infra/terraform.tfvars` :
-
-   | Cas | Image |
-   | --- | --- |
-   | Votre image a déjà tourné sur Cloud Run | `europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team1-fraud-api:<tag>` |
-   | Pas d'image, ou une image qui ne démarre pas | `europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/ref-fraud-api:td2` |
-
-4. Un service `team1-fraud-api` créé à la main dans la console bloque Terraform (`already exists`).
-   Vérifiez, et supprimez-le s'il existe :
-
-   ```bash
-   gcloud run services list --region europe-west1 --filter 'metadata.name~team1'
-   gcloud run services delete team1-fraud-api --region europe-west1
-   ```
-
-5. Complétez `infra/main.tf`, appliquez et appelez le service :
-
-   ```bash
-   cd infra
-   terraform init -reconfigure
-   terraform apply
-   URL=$(gcloud run services describe team1-fraud-api --region europe-west1 --format 'value(status.url)')
-   TOKEN=$(gcloud auth print-identity-token)
-   curl -i $URL/health
-   curl -H "Authorization: Bearer $TOKEN" $URL/health
-   curl -X POST $URL/predict -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-     -d '{"transactions": [{"TX_ID": "t1", "TX_TS": "2026-10-01 09:02:07", "CUSTOMER_ID": "7697141589194972", "TERMINAL_ID": "73436130", "TX_AMOUNT": 22.48}]}'
-   ```
-
-**Point de contrôle :** 403 sans jeton, 200 avec, et un score entre 0 et 1 sur `/predict`.
-
-**Blocages fréquents :**
-
-- `403` sur `advanced-cloud-ai-tfstate` au `terraform init` : préfixe de `backend.tf` faux ; corrigez-le et relancez `terraform init -reconfigure`.
-- `already exists` sur `team1-run` : compte créé hors Terraform ; `gcloud iam service-accounts delete team1-run@advanced-cloud-ai.iam.gserviceaccount.com`, puis relancez.
-- Le service ne démarre pas : image absente ou pas en `linux/amd64` ; prenez l'image de référence. Sinon, lisez les logs de la révision : bucket non monté, `DATA_DIR` faux, port différent de 8000.
-- 403 avec jeton : votre adresse manque dans les appelants autorisés (`roles/run.invoker`).
-
-## Étape 1 — Brancher (30 min)
-
-Le topic public `projects/cymbal-fraudfinder/topics/ff-tx` reçoit des transactions FraudFinder en
-continu (0,6 message par seconde, mesuré la veille). Avec un abonnement **push**, Pub/Sub appelle
-votre service à chaque message.
-
-```text
-ff-tx ──► team1-tx-push ──POST /pubsub, jeton de team1-push──► team1-fraud-api
-              │ après 5 échecs
-              ▼
-          team1-tx-dead ──► team1-tx-dead-pull (lecture à la main)
+```hcl
+# infra/backend.tf
+prefix = "team-ghv"
+# infra/terraform.tfvars
+team = "team-ghv"
+tx_topic = "projects/cymbal-fraudfinder/topics/ff-tx"
 ```
 
-1. Copiez le squelette dans votre tranche (`cp docs/seance-3/pubsub.tf infra/`). Dans
-   `infra/terraform.tfvars`, `tx_topic = "projects/cymbal-fraudfinder/topics/ff-tx"` (c'est aussi la
-   valeur par défaut).
-2. Complétez les trois trous `À COMPLÉTER` de `infra/pubsub.tf` (repérés (a), (b), (c)) :
+Keep the upstream validation expression `^team(-?[a-z0-9]+)+$` and its 20-character limit.
+The execution helper separately requires this fork's actual GHV namespace.
 
-   | Trou | Ce qu'il faut | Indice |
-   | --- | --- | --- |
-   | `push_endpoint` | l'URL de votre service suivie de `/pubsub` | attribut `uri` de votre ressource `google_cloud_run_v2_service` |
-   | compte du `oidc_token` | le compte qui signe le jeton envoyé au service | attribut `email` du compte `push` |
-   | bloc `dead_letter_policy` | où envoyer un message après 5 échecs | attribut `id` du topic `dead`, et `max_delivery_attempts` |
-
-3. `terraform validate`, puis `terraform plan` : relisez la liste des ressources créées, puis `terraform apply`.
-
-**Point de contrôle :** les logs du service montrent des `POST /pubsub` en 404, puisque l'endpoint
-n'existe pas encore.
+From the infrastructure repository root, after saving and reviewing changes:
 
 ```bash
-gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="team1-fraud-api" AND httpRequest.requestUrl:"/pubsub"' \
-  --freshness 10m --limit 5 --format 'value(timestamp,httpRequest.status)'
+git branch --show-current
+python3 scripts/terraform.py init -reconfigure
+python3 scripts/terraform.py plan -out=session3-baseline.tfplan
 ```
 
-**Questions :**
+Expected branch: `Ali`. The baseline plan should show no changes. The helper passes a short-lived
+course login token to Terraform; state remains shared in GCS. Do not import the service again or
+apply a plan proposing its creation, replacement or deletion. A 403 on the backend can indicate a
+wrong prefix: verify it before diagnosing a missing project permission.
 
-1. Console → Pub/Sub → Abonnements → `team1-tx-push` → Métriques : que montrent les messages non acquittés et l'âge du plus ancien message pendant les 404 ?
-2. Pourquoi un compte `team1-push` séparé, plutôt que `team1-run` ? Quels droits a chacun ?
-3. Après 3 minutes, lisez `team1-tx-dead-pull` sans acquitter (`gcloud pubsub subscriptions pull team1-tx-dead-pull --limit 1`). Qu'y trouvez-vous, et pourquoi ?
+From the application repository, with the private course files available:
 
-**Blocages fréquents :**
+```bash
+uv sync --frozen
+uv run --frozen python scripts/check_http.py --url https://team-ghv-fraud-api-191726065850.europe-west1.run.app --private
+```
 
-- 403 au lieu de 404 dans les logs : normal pendant 2 à 3 minutes après l'`apply`, le temps que le droit d'appel soit pris en compte. S'il persiste, `roles/run.invoker` manque ou porte sur le mauvais compte.
-- `Missing required argument` : un trou (a) ou (b) n'est pas rempli ; la ligne est indiquée.
-- `Permission denied` sur le topic : appelez l'enseignant.
+This checks anonymous rejection, authorized health, and 500 reference scores. It uses your current
+gcloud identity; an authorized school identity must be in the complete team invoker list.
 
-## Étape 2 — Adapter (25 min)
+## Stage 1 — connect authenticated delivery
 
-Vous ajoutez `POST /pubsub` dans `app.py` du dépôt du service. Pub/Sub envoie une **enveloppe**
-(exemple : `docs/seance-3/enveloppe.json` de ce dépôt) ; la transaction est dans `message.data`,
-en JSON encodé en base64, avec des clés en majuscules (`TX_ID`, `TX_AMOUNT`...) que le modèle
-`Transaction` accepte déjà. Aucune dépendance nouvelle. Signature à reprendre :
+```text
+transaction topic -> team-ghv-tx-push -> POST /pubsub -> team-ghv-fraud-api
+                            |
+                            +-> team-ghv-tx-dead -> team-ghv-tx-dead-pull
+```
+
+1. Read the scaffold `docs/seance-3/pubsub.tf` before copying it into `infra/`.
+2. Fill its three exercise holes: endpoint `api.uri` plus `/pubsub`; the push account's email;
+   the dead topic ID and `max_delivery_attempts = 5`.
+3. Resolve the scaffold's IAM integration with the current configuration: the main service has an
+   authoritative `roles/run.invoker` binding. Include the push account in that binding; do not add
+   another member resource managing the same role alongside it. Keep all existing approved callers.
+4. Check prerequisites for authenticated delivery: the operator needs permission to act as the push
+   account; the Pub/Sub service agent must be able to mint its identity token. Verify existing grants
+   before requesting or adding narrowly scoped missing ones.
+5. Check dead-letter forwarding permissions: the Pub/Sub service agent needs publisher access to
+   the dead-letter topic and subscriber access to the source subscription. These are not all present
+   in the instructor's starter skeleton. Verify the grants; do not assume another team configured them.
+6. Extend `scripts/terraform.py` and its tests to permit only the exact planned GHV Pub/Sub resources
+   and associated least-privilege grants. The Session 2 helper intentionally rejects unknown resource
+   types; do not bypass it or disable namespace/service protections.
+7. Run format, validation, policy/guard tests and inspect a saved plan before any apply. The only
+   service change at this stage should be the reviewed private invoker binding.
+
+The instructor intentionally connects delivery before adding the endpoint, so initial requests can
+return 404. Observe this briefly; do not leave a failing stream running between learning sessions.
+
+```bash
+gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="team-ghv-fraud-api" AND httpRequest.requestUrl:"/pubsub"' --project advanced-cloud-ai --freshness 10m --limit 5 --format 'value(timestamp,httpRequest.status)'
+gcloud pubsub subscriptions pull team-ghv-tx-dead-pull --project advanced-cloud-ai --limit 1
+```
+
+The pull command above does not acknowledge/remove messages. Investigate persistent 403 separately
+from 404: the former is authentication/authorization; the latter means the route is missing.
+Observe `subscription/num_undelivered_messages` and `subscription/oldest_unacked_message_age`.
+Explain why delivery identity `team-ghv-push` needs service invocation, while the mandated runtime
+identity needs data access. They have different jobs and must not share unnecessary permissions.
+
+## Stage 2 — implement the API endpoint
+
+Add `POST /pubsub` to `app.py` in the application repository. The JSON request wraps a transaction
+in `message.data`, which is base64-encoded JSON. See `enveloppe.json`. The existing `Transaction`
+model accepts uppercase course fields. No additional dependency is needed for base64 or JSON.
 
 ```python
 class PushMessage(BaseModel):
     data: str
     messageId: str
     publishTime: str | None = None
-    attributes: dict[str, str] = {}
+    attributes: dict[str, str] = Field(default_factory=dict)
 
 
 class PushEnvelope(BaseModel):
     message: PushMessage
     subscription: str
     deliveryAttempt: int | None = None
-
-
-@app.post("/pubsub", status_code=204)
-def pubsub(envelope: PushEnvelope, request: Request) -> Response:
-    ...
 ```
 
-Ce que fait le corps, dans cet ordre :
+Import `Field` when using this example. Implement and test the following behavior before deployment:
 
-| # | Action | Outil |
+| Order | Action | Expected result |
 | --- | --- | --- |
-| 1 | décoder `message.data` puis lire le JSON | `base64.b64decode`, `json.loads` |
-| 2 | valider la transaction ; si elle est invalide (`TX_AMOUNT` ≤ 0), écrire une ligne `{"severity": "ERROR", "message": "rejected", "tx_id": ..., "delivery_attempt": ...}`, puis renvoyer **422** | `Transaction.model_validate`, `pydantic.ValidationError` |
-| 3 | scorer **sans** enregistrer la transaction dans les compteurs, comme `/predict` | `_predict(..., record=False)` |
-| 4 | écrire **une** ligne JSON : `{"severity": "INFO", "message": "scored", "tx_id": ..., "score": ..., "delivery_attempt": ...}` | `print(json.dumps(...))` |
-| 5 | renvoyer 204, seulement maintenant | `Response(status_code=204)` |
+| 1 | Decode base64 and parse JSON | Malformed input returns a controlled client error rather than an uncaught 500 |
+| 2 | Validate with `Transaction.model_validate` | Invalid amount, including zero or negative, logs `rejected` and returns 422 |
+| 3 | Score through the existing path with `record=False` | No mutation of daily event counters |
+| 4 | Print one JSON line | Valid: severity INFO, message scored, tx_id, score, delivery_attempt; invalid: severity ERROR and message rejected |
+| 5 | Return an empty `Response(status_code=204)` | Acknowledge only after scoring and logging succeed |
 
-Pour Pub/Sub, tout code 2xx acquitte le message, tout autre code le fait relivrer. Un 204 renvoyé
-avant la fin du travail perd le message si l'instance s'arrête. On n'enregistre rien pour qu'une
-nouvelle livraison donne le même score.
+The instructor requires the fields above. Add `message_id` to the structured log if needed to
+distinguish redelivery of one message from two publications of the same transaction. Do not log
+credentials or whole payloads. Repeated prediction must leave counters unchanged; this lab does
+not guarantee an identical score across arbitrary history/revision changes or global deduplication.
 
-**Tester en local, avant de construire**, dans le dossier du service :
-
-```bash
-INFRA=~/ai-cloud-infra-terraform-student   # le chemin de ce dépôt chez vous
-gcloud storage cp gs://advanced-cloud-ai-models/data/customer_daily.parquet gs://advanced-cloud-ai-models/data/terminal_daily.parquet data/
-uv run uvicorn app:app --port 8000
-# dans un second terminal
-curl -i -X POST localhost:8000/pubsub -H "Content-Type: application/json" -d @$INFRA/docs/seance-3/enveloppe.json
-DATA=$(printf '%s' '{"TX_ID": "local-neg", "TX_TS": "2026-10-01 09:02:07", "CUSTOMER_ID": "7697141589194972", "TERMINAL_ID": "73436130", "TX_AMOUNT": -1}' | base64 | tr -d '\n')
-curl -i -X POST localhost:8000/pubsub -H "Content-Type: application/json" \
-  -d "{\"message\": {\"data\": \"$DATA\", \"messageId\": \"2\"}, \"subscription\": \"local\", \"deliveryAttempt\": 1}"
-```
-
-Attendu : 204 puis une ligne `scored` dans le premier terminal ; 422 puis une ligne `rejected` pour la
-seconde.
-
-**Déployer.** Construisez l'image, poussez-la, puis déployez une nouvelle révision avec `gcloud`.
-Mettez aussi le nouveau tag dans `image` de `infra/terraform.tfvars` : sinon le `terraform apply` de
-l'étape 3 peut remettre l'ancienne image.
+Test locally with Uvicorn running in one terminal and curl in another:
 
 ```bash
-IMAGE=europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team1-fraud-api:td3
-docker build --platform linux/amd64 -t $IMAGE .
-docker push $IMAGE
-gcloud run deploy team1-fraud-api --image $IMAGE --region europe-west1
+# Application repository, terminal 1
+uv run --frozen uvicorn app:app --host 127.0.0.1 --port 8000
+# Application repository, terminal 2
+curl -i -X POST http://127.0.0.1:8000/pubsub -H 'Content-Type: application/json' --data-binary @../ai-cloud-infra-terraform-team-ghv/docs/seance-3/enveloppe.json
 ```
 
-**Point de contrôle :** une ligne par message dans Cloud Logging, avec `tx_id` et `score`. Logs
-Explorer :
+This currently returns 404 until you implement the route. After implementation, expect 204 and one
+`scored` log. Also test negative amounts (422/rejected), malformed data, failure before acknowledgment,
+redelivery, and unchanged existing reference predictions. Keep the full API suite and Ruff passing.
 
-```text
-resource.type="cloud_run_revision"
-resource.labels.service_name="team1-fraud-api"
-jsonPayload.message="scored"
-```
+Build a Linux amd64 image, push only to the team's private course registry, and pin its new digest
+in the ignored infrastructure `terraform.tfvars`. Use the existing Terraform image owner to deploy
+a reviewed saved plan, preserving the runtime account, mount, private IAM and service protection.
+Do not enable competing CD while Terraform owns the image. A new image tag alone does not deploy it.
+
+The instructor offers `ref-fraud-api:td3` as a fallback if the exercise timebox expires. It is not
+selected automatically here; fallback use must be recorded and must satisfy the team's image policy.
+
+Check Cloud Logging for `jsonPayload.message="scored"` on the GHV service, one line per delivery.
+If output appears under `textPayload`, check that you print one `json.dumps(...)` line.
+
+## Stage 3 — observe the instructor's replay and invalid message
+
+Coordinate the replay window with the instructor. Switch `tx_topic` to
+`projects/advanced-cloud-ai/topics/ff-replay` only after the endpoint and connection work.
+Changing topic replaces the push subscription and loses its old pending backlog. Review that
+replacement explicitly; it must never replace the main Cloud Run service.
+
+The instructor asks to clear old dead-letter messages first. `seek --time` changes the subscription
+cursor and can skip earlier messages, so capture required evidence before using it. Use only your
+own exact `team-ghv` subscription, not a project-wide pattern.
+
+At each announced load level, record:
+
+| Source | Measurements |
+| --- | --- |
+| Pub/Sub subscription | Undelivered messages and oldest unacknowledged message age |
+| Cloud Run | Peak instances, configured maximum, request p50/p99 |
+| Structured logs | Scored/rejected counts, tx_id, message_id if added, delivery_attempt |
+
+Trace the instructor's invalid `tx_id`, then inspect the dead-letter subscription. Configure five
+maximum attempts, but report the attempts actually observed: forwarding is best effort and the
+count is approximate, not a guarantee of exactly 1 through 5.
 
 ```bash
-gcloud logging read 'resource.type="cloud_run_revision" AND resource.labels.service_name="team1-fraud-api" AND jsonPayload.message="scored"' \
-  --freshness 10m --limit 10 --format 'value(timestamp,jsonPayload.tx_id,jsonPayload.score,jsonPayload.delivery_attempt)'
+gcloud pubsub subscriptions pull team-ghv-tx-dead-pull --project advanced-cloud-ai --limit 5
 ```
 
-Bloqués à la fin des 25 minutes : déployez l'image de référence (et mettez-la dans `terraform.tfvars`),
-puis passez à l'étape 3.
+One designated teammate may add `--auto-ack` after capturing the required evidence; doing so removes
+the pulled messages. Do not claim the teacher's poisoned-message result from a local synthetic test.
+Answer: at what rate did backlog grow, what absorbed it, what happened to the invalid message,
+and were duplicate deliveries distinguishable from separate publications?
 
-```bash
-gcloud run deploy team1-fraud-api --region europe-west1 \
-  --image europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/ref-fraud-api:td3
-```
+## Report, review, and cleanup
 
-**Blocages fréquents :**
+Fill `docs/seance-3/compte-rendu.md` from actual observations and submit reviewed team changes.
+Do not push personal notes, raw logs/state, private invoker identities, or course data. The optional
+bonus publishes scores to a team topic with confirmed completion before acknowledgment; it is
+outside the required baseline and needs a publisher client and scoped runtime permission.
 
-- La ligne apparaît en `textPayload` et non en `jsonPayload` : ce n'est pas du JSON sur une seule ligne ; utilisez `json.dumps`, pas `print(dict)`.
-- 500 au lieu de 422 sur la transaction invalide : la `ValidationError` n'est pas interceptée.
-- `exec format error` au démarrage de la révision : image construite sans `--platform linux/amd64`.
+Remove the newly introduced push subscription and associated disposable Session 3 resources through
+a reviewed scoped Terraform change when the session ends. An active push subscription continues
+calling the service. Keep the adopted protected main service and shared course foundation.
+Do not run the upstream template's blanket `terraform destroy` against the shared GHV state.
 
-## Étape 3 — Observer et casser (20 min)
+## Verified platform references
 
-L'enseignant rejoue des transactions dans `projects/advanced-cloud-ai/topics/ff-replay` à débit
-croissant, puis publie un message empoisonné (`TX_AMOUNT: -1`). Chaque équipe reçoit tous les
-messages.
-
-1. Videz la file de messages morts, remplie à l'étape 1 par les 404 :
-
-   ```bash
-   gcloud pubsub subscriptions seek team1-tx-dead-pull --time $(date -u +%Y-%m-%dT%H:%M:%SZ)
-   ```
-
-2. Dans `terraform.tfvars`, `tx_topic = "projects/advanced-cloud-ai/topics/ff-replay"`, puis
-   `terraform apply`. Le plan **remplace** l'abonnement : on ne change pas le topic d'un abonnement
-   existant, et les messages en attente sur l'ancien sont perdus. Prévenez l'enseignant quand c'est fait.
-3. Pendant la montée en charge, relevez à chaque palier :
-
-   | Où | Métrique | À noter |
-   | --- | --- | --- |
-   | Pub/Sub → `team1-tx-push` → Métriques | `subscription/num_undelivered_messages` | le palier où la courbe ne redescend plus |
-   | idem | `subscription/oldest_unacked_message_age` | la valeur maximale |
-   | Cloud Run → `team1-fraud-api` → Métriques | nombre d'instances, latence des demandes | le pic, p50 et p99 |
-
-4. Quand l'enseignant annonce le `tx_id` empoisonné, suivez ses tentatives (filtre Logs Explorer
-   `jsonPayload.tx_id="<tx_id annoncé>"`) : `delivery_attempt` doit aller de 1 à 5.
-5. Lisez-le dans la file de messages morts. Une seule personne par équipe : `--auto-ack` le retire.
-
-   ```bash
-   gcloud pubsub subscriptions pull team1-tx-dead-pull --auto-ack --limit 5
-   ```
-
-**Point de contrôle :** le `tx_id` empoisonné lu dans `team1-tx-dead-pull`.
-
-**Questions :**
-
-1. À quel débit le retard commence-t-il à grossir ? Qu'est-ce qui l'absorbe : la concurrence par instance, le nombre maximal d'instances (voir `main.tf`) ?
-2. Sans file de messages morts, que serait devenu le message empoisonné ?
-3. Y a-t-il des doublons de `tx_id` dans vos logs ? Comment le vérifier, et comment distinguer une nouvelle livraison par Pub/Sub d'une seconde publication ?
-
-**Blocages fréquents :**
-
-- Aucune requête après l'`apply` : l'abonnement pointe encore sur `ff-tx` ; vérifiez `gcloud pubsub subscriptions describe team1-tx-push --format 'value(topic)'`.
-- D'anciennes transactions en file de messages morts : l'étape 3.1 a été sautée.
-
-## Compte rendu (5 min)
-
-Remplissez `docs/seance-3/compte-rendu.md` dans votre fork, puis commit et push.
-
-## Bonus (optionnel)
-
-Publier les scores : un topic `team1-scores` dans `pubsub.tf`, le droit `roles/pubsub.publisher` de
-`team1-run` sur ce topic, et dans `/pubsub` une publication confirmée (`.result()`) avant le 204.
-Il faut alors la dépendance `google-cloud-pubsub`.
-
-## Fin de séance
-
-```bash
-cd infra
-terraform destroy
-gcloud pubsub subscriptions list --filter 'name~team1-' --format 'value(name)'
-```
-
-La seconde commande ne doit rien renvoyer. Un abonnement push oublié continue d'appeler votre service.
+- [Push request format and acknowledgment responses](https://docs.cloud.google.com/pubsub/docs/push)
+- [Authenticated push identities and required permissions](https://docs.cloud.google.com/pubsub/docs/authenticate-push-subscriptions)
+- [Dead-letter forwarding, IAM, and approximate delivery attempts](https://docs.cloud.google.com/pubsub/docs/dead-letter-topics)

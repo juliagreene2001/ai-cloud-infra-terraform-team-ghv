@@ -1,4 +1,4 @@
-team     = "team-ghv"
+team     = "team1"
 image    = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team1-fraud-api:v1"
-invokers = ["user:mhousni@albertschool.com"]
+invokers = ["user:prenom@albertschool.com"]
 tx_topic = "projects/cymbal-fraudfinder/topics/ff-tx"

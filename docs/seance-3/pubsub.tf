@@ -1,25 +1,18 @@
-# Séance 3 : brancher le service de scoring sur le flux de transactions.
-# À copier dans infra/ au début de l'étape 1.
-# Ce fichier suppose que votre service Cloud Run s'appelle google_cloud_run_v2_service.api
-# dans main.tf ; s'il porte un autre nom, remplacez "api" partout ci-dessous.
-# Trois trous à compléter, repérés par "À COMPLÉTER". Tant que (a) et (b) sont vides,
-# terraform validate s'arrête sur "Missing required argument" en pointant la ligne à compléter.
+# Session 3 teaching scaffold. Not active configuration; keep this under docs/ until reviewed.
+# Assumes google_cloud_run_v2_service.api exists in main.tf.
+# Complete holes (a), (b), and (c), plus the IAM/guard integration in ../seance-3.md.
+# Do not apply this file unchanged: required arguments are intentionally absent.
 
-# 1. Identité de la livraison : Pub/Sub présente un jeton signé au nom de ce compte.
 resource "google_service_account" "push" {
   account_id   = "${var.team}-push"
-  display_name = "Livraison Pub/Sub vers le service de scoring ${var.team}"
+  display_name = "Pub/Sub delivery to the ${var.team} scoring service"
 }
 
-# 2. Ce compte, et lui seul, a le droit d'appeler votre service privé.
-resource "google_cloud_run_v2_service_iam_member" "push_invokes_api" {
-  name     = google_cloud_run_v2_service.api.name
-  location = var.region
-  role     = "roles/run.invoker"
-  member   = google_service_account.push.member
-}
+# Integrate this account into the existing authoritative invokers binding in main.tf.
+# Do not also create a google_cloud_run_v2_service_iam_member for the same invoker role.
+# Keep the full approved human invoker list and add the push account's member identity.
+# Verify token-minting and dead-letter service-agent IAM prerequisites separately.
 
-# 3. File des messages en échec, et un abonnement pull pour les relire.
 resource "google_pubsub_topic" "dead" {
   name = "${var.team}-tx-dead"
 }
@@ -29,7 +22,6 @@ resource "google_pubsub_subscription" "dead_pull" {
   topic = google_pubsub_topic.dead.id
 }
 
-# 4. Abonnement push : Pub/Sub appelle votre service à chaque transaction.
 resource "google_pubsub_subscription" "tx" {
   name                       = "${var.team}-tx-push"
   topic                      = var.tx_topic
@@ -37,12 +29,9 @@ resource "google_pubsub_subscription" "tx" {
   message_retention_duration = "3600s"
 
   push_config {
-    # À COMPLÉTER (a) : push_endpoint, l'URL appelée par Pub/Sub.
-    # Indice : l'URL de votre service (attribut uri) suivie du chemin /pubsub.
-
+    # TODO (a): push_endpoint = the existing service URI followed by /pubsub.
     oidc_token {
-      # À COMPLÉTER (b) : service_account_email, le compte au nom duquel le jeton est signé.
-      # Indice : l'adresse (attribut email) du compte créé en 1.
+      # TODO (b): service_account_email = the push account email.
       audience = google_cloud_run_v2_service.api.uri
     }
   }
@@ -52,18 +41,15 @@ resource "google_pubsub_subscription" "tx" {
     maximum_backoff = "60s"
   }
 
-  # À COMPLÉTER (c) : le bloc dead_letter_policy, à décommenter et compléter.
-  # Indice : après 5 tentatives, le message part dans le topic créé en 3 (attribut id).
+  # TODO (c): uncomment and complete this policy.
+  # Forwarding after the configured count is best effort, not an exact attempt guarantee.
   # dead_letter_policy {
   #   dead_letter_topic     =
   #   max_delivery_attempts =
   # }
 
-  labels = {
-    team = var.team
-  }
-
-  depends_on = [google_cloud_run_v2_service_iam_member.push_invokes_api]
+  labels = { team = var.team }
+  depends_on = [google_cloud_run_v2_service_iam_binding.invokers]
 }
 
 output "push_subscription" {
