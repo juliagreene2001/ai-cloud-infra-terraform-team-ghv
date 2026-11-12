@@ -5,3 +5,24 @@
 crash.log
 .DS_Store
 terraform.tfvars
+infra/.local-execution/
+docs/archive/
+
+# Private local study, audit, configuration, and raw evidence
+docs/evidence/
+docs/archive/
+docs/private/
+local-notes/
+LEARNING_GUIDE.md
+CORRECTION_REPORT.md
+PROJECT_COMPLETION.md
+VERIFICATION.md
+*.tfvars
+*.tfvars.json
+
+# Generated Python tooling files
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.venv/

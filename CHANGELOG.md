@@ -1,13 +1,10 @@
 # Changelog
 
-## [Unreleased]
+## Unreleased
 
-### Added
-
-- Squelette Terraform de l'équipe (`infra/`) : backend GCS, variables validées, lecture du socle.
-- Énoncé de la séance 2 (`docs/seance-2.md`) : Cloud Run à la main, puis Terraform, puis mesures.
-
-### Changed
-
-- Énoncé de la séance 2 : le service lit `customer_daily.parquet` et `terminal_daily.parquet`
-  (FraudFinder) au lieu de `history.parquet`.
+- Implement the GHV Cloud Run service, explicit private invoker binding and outputs.
+- Configure the shared GHV backend and validate namespace/image ownership.
+- Protect the pre-existing service from recreation and deletion.
+- Keep optional account/IAM resources off by default while using the required course runtime account.
+- Add mocked policy tests, execution guards and pull-request CI without cloud credentials.
+- Add English operations documentation and an anonymized measured report.
