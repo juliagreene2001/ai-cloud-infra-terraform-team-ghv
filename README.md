@@ -1,73 +1,59 @@
-# Infrastructure de l'équipe — Advanced Cloud AI Infrastructure
+# Team GHV cloud infrastructure
 
-Ce dépôt contient l'infrastructure de votre équipe, écrite en Terraform. Il vous suit pendant tout le
-cours : chaque séance y ajoute des ressources. Vous travaillez sur un **fork** par équipe.
+Terraform configuration for `team-ghv-fraud-api` in project `advanced-cloud-ai`, region
+`europe-west1`. The companion application is
+[fraud-api-albertschool-team-ghv](https://github.com/juliagreene2001/fraud-api-albertschool-team-ghv).
 
-Toutes les équipes partagent un seul projet Google Cloud, `advanced-cloud-ai`, région `europe-west1`.
+## Scope
 
-| Qui | Gère | Vos droits |
-| --- | --- | --- |
-| Enseignant (socle) | APIs, bucket des states, registre d'images `cloud-ai`, bucket des modèles | lecture seule |
-| Votre équipe (tranche) | compte de service d'exécution, service Cloud Run, règles d'accès | création et suppression |
+- Uses the actual `team-ghv` namespace for resources, labels, images and shared state.
+- Adopts the existing service rather than creating a replacement.
+- Keeps the required `cloudai-runner` runtime account, port 8000 and read-only data-bucket mount.
+- Enforces a private invoker allowlist, min zero and max three instances.
+- Protects the existing service with deletion protection and `prevent_destroy`.
+- Makes the separate account/IAM exercise explicit through `create_team_account`, default false.
+- Uses shared state at `gs://advanced-cloud-ai-tfstate/team-ghv/default.tfstate`.
 
-## Trois règles dans le projet partagé
+## Review and operate
 
-1. Chaque nom de ressource commence par votre identifiant d'équipe : `team1-fraud-api`.
-2. Chaque ressource porte le label `team` (posé automatiquement par le provider, voir `infra/versions.tf`).
-3. Votre state Terraform vit sous votre préfixe, dans le bucket partagé `advanced-cloud-ai-tfstate`.
+Install Terraform >=1.9 and gcloud. The committed provider lock selects Google provider 8.10.0.
+Sign in with the course account. The execution helper supplies a short-lived token in memory.
 
-Les droits ne vous empêchent pas de modifier un service Cloud Run d'une autre équipe : seul le nommage
-vous en protège. Vérifiez le nom avant chaque suppression.
-
-## Contenu
-
-| Chemin | Rôle |
-| --- | --- |
-| `infra/` | votre Terraform : `backend.tf`, `variables.tf`, `main.tf`, `outputs.tf` |
-| `docs/seance-2.md` | énoncé de la séance 2 : déployer le service de scoring sur Cloud Run |
-| `docs/seance-3.md` | énoncé de la séance 3 : brancher le service sur un flux Pub/Sub |
-| `docs/seance-3/` | squelette `pubsub.tf`, exemple d'enveloppe push, modèle de compte rendu |
-
-## Outils à installer
-
-Il faut `gcloud`, `terraform` (≥ 1.9) et Docker. Toutes les commandes du cours sont des commandes
-bash.
-
-**macOS** : dans le Terminal.
+For a fresh checkout, copy `infra/terraform.tfvars.example` to `infra/terraform.tfvars`, replace the
+placeholder with the complete team-approved invoker list, and keep the file untracked. The helper
+rejects unchanged placeholder users. Existing operators should preserve their current private file.
 
 ```bash
-brew tap hashicorp/tap && brew install hashicorp/tap/terraform
+python3 scripts/terraform.py init
+python3 scripts/terraform.py plan -out=review.tfplan
+python3 scripts/terraform.py apply review.tfplan
 ```
 
-`gcloud` : <https://cloud.google.com/sdk/docs/install>. Docker : celui du TD 1.
+The main service is already imported in shared state. Do not import a duplicate into another state.
+The helper requires a reviewed saved plan and rejects another namespace or main-service recreation,
+replacement or deletion. Local cloud-state mode is disabled. Terraform owns image updates while
+optional CD is inactive.
 
-**Windows** : tout se fait dans le terminal **Ubuntu (WSL 2)** installé pour le TD 1, jamais dans
-PowerShell. `gcloud` et `terraform` s'installent donc dans Ubuntu, pas dans Windows :
+## Tests and documentation
 
 ```bash
-sudo apt-get update && sudo apt-get install -y gnupg curl lsb-release
-
-curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp.gpg
-echo "deb [signed-by=/usr/share/keyrings/hashicorp.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-
-curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
-
-sudo apt-get update && sudo apt-get install -y terraform google-cloud-cli
+python3 scripts/test_terraform.py
 ```
 
-Clonez le dépôt dans votre dossier Linux (`cd ~`), pas dans `/mnt/c/...`.
+This validates a temporary copy with mocked Google resources and no shared backend. Execution-guard
+unit tests are in `tests/`; run them with pytest or the companion application's development environment.
+Pull-request CI runs the mocked policy tests and guard tests without cloud credentials.
 
-**Les deux systèmes** : vérifier, puis se connecter.
+See [operations](docs/OPERATIONS.md), [the English GHV assignment](docs/session-2.md), and
+[the anonymized session report](docs/report-session-2.md). Raw evidence, personal study notes,
+archives and local configuration are excluded from version control.
 
-```bash
-terraform version && gcloud version && docker version
+## Session 3: next assignment
 
-gcloud auth login
-gcloud auth application-default login
-gcloud config set project advanced-cloud-ai
-gcloud auth configure-docker europe-west1-docker.pkg.dev
-```
-
-Sous Windows, si le navigateur ne s'ouvre pas, ajoutez `--no-launch-browser` aux deux commandes
-`gcloud auth` : gcloud affiche un lien à ouvrir à la main et attend le code en retour.
+The latest upstream instructions add authenticated Pub/Sub delivery, a `/pubsub` endpoint,
+retry/dead-letter observations and a separate report. Read [Session 3](docs/seance-3.md).
+The English [scaffold](docs/seance-3/pubsub.tf), [sample envelope](docs/seance-3/enveloppe.json)
+and [unfilled report](docs/seance-3/compte-rendu.md) retain the instructor's original paths.
+They are learning materials, not deployed resources.
+Only the unused `tx_topic` input is added to active configuration. Session 3 is not completed by
+this pull request. Its implementation belongs on the `Ali` branch with separate review.
