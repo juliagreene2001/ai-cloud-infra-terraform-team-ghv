@@ -26,3 +26,6 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .venv/
+archive/
+MENTOR_NEXT_STEPS.md
+PRIVACY_HANDOFF.md
