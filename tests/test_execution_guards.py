@@ -75,3 +75,40 @@ def test_template_invoker_cannot_be_applied(tmp_path):
     (tmp_path / "backend.tf").write_text('prefix = "team-ghv"\n')
     with pytest.raises(ValueError, match="authorized school accounts"):
         RUNNER.check_configuration(tmp_path)
+
+
+SESSION3_RESOURCES = [
+    ("google_service_account", {"account_id": "team-ghv-push"}),
+    ("google_pubsub_topic", {"name": "team-ghv-tx-dead"}),
+    ("google_pubsub_subscription", {"name": "team-ghv-tx-push"}),
+    ("google_pubsub_subscription", {"name": "team-ghv-tx-dead-pull"}),
+]
+
+
+def session3_change(kind, values):
+    return {
+        "mode": "managed",
+        "type": kind,
+        "change": {"actions": ["create"], "after": values},
+    }
+
+
+@pytest.mark.parametrize(("kind", "values"), SESSION3_RESOURCES)
+def test_allows_ghv_session3_resources_in_the_course_project(kind, values):
+    change = session3_change(kind, values | {"project": "advanced-cloud-ai"})
+    RUNNER.check_plan({"resource_changes": [change]})
+
+
+@pytest.mark.parametrize(("kind", "values"), SESSION3_RESOURCES)
+def test_rejects_session3_resources_in_another_project(kind, values):
+    change = session3_change(kind, values | {"project": "another-project"})
+    with pytest.raises(ValueError, match="project"):
+        RUNNER.check_plan({"resource_changes": [change]})
+
+
+@pytest.mark.parametrize(("kind", "values"), SESSION3_RESOURCES)
+def test_rejects_session3_resources_named_for_another_team(kind, values):
+    other_names = {key: value.replace("team-ghv", "team3") for key, value in values.items()}
+    change = session3_change(kind, other_names | {"project": "advanced-cloud-ai"})
+    with pytest.raises(ValueError, match="Unexpected"):
+        RUNNER.check_plan({"resource_changes": [change]})

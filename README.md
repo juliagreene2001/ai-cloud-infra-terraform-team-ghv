@@ -48,12 +48,19 @@ See [operations](docs/OPERATIONS.md), [the English GHV assignment](docs/session-
 [the anonymized session report](docs/report-session-2.md). Raw evidence, personal study notes,
 archives and local configuration are excluded from version control.
 
-## Session 3: next assignment
+## Session 3: integrated on Ali
 
-The latest upstream instructions add authenticated Pub/Sub delivery, a `/pubsub` endpoint,
-retry/dead-letter observations and a separate report. Read [Session 3](docs/seance-3.md).
-The English [scaffold](docs/seance-3/pubsub.tf), [sample envelope](docs/seance-3/enveloppe.json)
-and [unfilled report](docs/seance-3/compte-rendu.md) retain the instructor's original paths.
-They are learning materials, not deployed resources.
-Only the unused `tx_topic` input is added to active configuration. Session 3 is not completed by
-this pull request. Its implementation belongs on the `Ali` branch with separate review.
+`infra/pubsub.tf` configures authenticated delivery to `/pubsub`, the dedicated `team-ghv-push`
+account, and the dead-letter topic and subscription. The Terraform helper accepts these exact
+team resource names only in project `advanced-cloud-ai`. The existing private invoker list is kept.
+The [teaching scaffold](docs/seance-3/pubsub.tf) and [sample envelope](docs/seance-3/enveloppe.json)
+remain available alongside the active implementation.
+
+Read the current preparation section in [Session 3](docs/seance-3.md). Preserve your ignored
+`infra/terraform.tfvars`; align its image with the reviewed `/pubsub` image and explicitly set
+`tx_topic = "projects/advanced-cloud-ai/topics/ff-replay"` before reviewing a new plan.
+The default topic remains the original `ff-tx` teaching stream. Source integration does not deploy
+an image, change the operator's gcloud login, or modify the existing private variables.
+
+The replay measurements and [Session 3 report](docs/seance-3/compte-rendu.md) are still pending.
+See the [implementation summary](docs/summary-sessions-2-3.md) for completed code and remaining work.

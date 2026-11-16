@@ -42,7 +42,7 @@ resource "google_cloud_run_v2_service" "api" {
   project              = var.project_id
   name                 = "${var.team}-fraud-api"
   location             = var.region
-  description          = "Private course fraud-scoring service managed by Terraform."
+  description          = "fraud-scoring service managed by Terraform."
   deletion_protection  = true
   ingress              = "INGRESS_TRAFFIC_ALL"
   invoker_iam_disabled = false
@@ -138,5 +138,5 @@ resource "google_cloud_run_v2_service_iam_binding" "invokers" {
   location = google_cloud_run_v2_service.api.location
   name     = google_cloud_run_v2_service.api.name
   role     = "roles/run.invoker"
-  members  = toset(var.invokers)
+  members  = toset(concat(var.invokers, ["serviceAccount:${google_service_account.push.email}"]))
 }

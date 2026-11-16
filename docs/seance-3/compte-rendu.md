@@ -4,6 +4,9 @@ Status: not yet performed. Replace pending values with measured results; do not 
 
 | Measurement | Observed value |
 | --- | --- |
+| Replay time window and time zone | Pending |
+| Configured concurrency per instance, unchanged for the exercise | Pending |
+| Maximum messages waiting and input rate where backlog starts growing persistently | Pending |
 | Messages processed and highest sustained rate without growing backlog | Pending |
 | Maximum oldest unacknowledged message age and corresponding rate | Pending |
 | Peak instances and configured maximum | Pending |

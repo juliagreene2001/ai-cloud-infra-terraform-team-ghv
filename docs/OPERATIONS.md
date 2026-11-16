@@ -8,9 +8,20 @@ The optional deployment identity is `team-ghv-cd@advanced-cloud-ai.iam.gservicea
 The team account exercise creates `team-ghv-run` only when explicitly enabled.
 
 Keep actual invoker identities in the ignored `infra/terraform.tfvars`. Use the complete approved
-team list rather than replacing it with a single operator. The image example pins the verified
-course artifact by digest. Data is external: mount `advanced-cloud-ai-models` at `/mnt/models`
+team list rather than replacing it with a single operator. The example uses the team's `td3-ali`
+image tag; choose the reviewed image digest explicitly before a deployment. Data is external:
+mount `advanced-cloud-ai-models` at `/mnt/models`
 read-only and set `DATA_DIR=/mnt/models/data`.
+
+Pub/Sub delivery uses `team-ghv-push@advanced-cloud-ai.iam.gserviceaccount.com`, granted invocation
+on the existing service. It is separate from the required runtime account. The helper obtains a
+short-lived token from the operator's current gcloud login; there is no contributor-specific cloud
+account in the implementation. Git authorship does not control cloud execution identity.
+
+For the instructor's replay, explicitly set the ignored `tx_topic` input to
+`projects/advanced-cloud-ai/topics/ff-replay`. The original default still points to `ff-tx`.
+Keep concurrency and maximum instances unchanged for the comparison exercise. Integration alone
+does not update the ignored variables, cloud resources or deployed image.
 
 ## Shared state and existing service
 

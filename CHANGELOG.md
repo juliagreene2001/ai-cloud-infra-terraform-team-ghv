@@ -1,5 +1,14 @@
 # Changelog
 
+## Session 3 integration on Ali — 16 November 2026
+
+- Merge the contributed authenticated Pub/Sub implementation while preserving the existing
+  course project, team namespace, private operator configuration and protected main service.
+- Restore the teaching scaffold, correct the GHV example variables and refresh English
+  documentation for the instructor's replay preparation.
+- Add execution-guard coverage for the new Pub/Sub resources and reject another project's targets.
+- Preserve local draft history in Git stashes; cloud deployment and GitHub publication remain separate.
+
 ## Unreleased
 
 - Implement the GHV Cloud Run service, explicit private invoker binding and outputs.
