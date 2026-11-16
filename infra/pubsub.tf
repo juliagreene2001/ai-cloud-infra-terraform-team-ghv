@@ -1,7 +1,5 @@
-# Session 3 teaching scaffold. Not active configuration; keep this under docs/ until reviewed.
-# Assumes google_cloud_run_v2_service.api exists in main.tf.
-# Complete holes (a), (b), and (c), plus the IAM/guard integration in ../seance-3.md.
-# Do not apply this file unchanged: required arguments are intentionally absent.
+# Session 3 resources for the existing team-ghv service.
+# The unfilled teaching copy remains in docs/seance-3/pubsub.tf.
 
 resource "google_service_account" "push" {
   account_id   = "${var.team}-push"
@@ -29,12 +27,9 @@ resource "google_pubsub_subscription" "tx" {
   message_retention_duration = "3600s"
 
   push_config {
-    # TODO (a): push_endpoint = the existing service URI followed by /pubsub
-
-    push_endpoint = "${google_cloud_run_v2_service.api.uri}/pubsub" # TODO (a): append /pubsub if needed.
+    push_endpoint = "${google_cloud_run_v2_service.api.uri}/pubsub"
 
     oidc_token {
-      # TODO (b): service_account_email = the push account email. 
       service_account_email = google_service_account.push.email
       audience              = google_cloud_run_v2_service.api.uri
     }
@@ -45,7 +40,6 @@ resource "google_pubsub_subscription" "tx" {
     maximum_backoff = "60s"
   }
 
-  # TODO (c): uncomment and complete this policy.
   # Forwarding after the configured count is best effort, not an exact attempt guarantee.
   dead_letter_policy {
     dead_letter_topic     = google_pubsub_topic.dead.id

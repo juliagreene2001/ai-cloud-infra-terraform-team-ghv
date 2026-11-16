@@ -1,4 +1,7 @@
-team     = "team1"
-image    = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team1-fraud-api:v1"
-invokers = ["user:prenom@albertschool.com"]
-tx_topic = "projects/cymbal-fraudfinder/topics/ff-tx"
+# Example only. Preserve your existing ignored terraform.tfvars and approved invoker list.
+# Before deployment, select the reviewed /pubsub-enabled team image, preferably by digest.
+team     = "team-ghv"
+image    = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/team-ghv-fraud-api:td3-ali"
+invokers = ["user:firstname@albertschool.com"]
+memory   = "1Gi"
+tx_topic = "projects/advanced-cloud-ai/topics/ff-replay"

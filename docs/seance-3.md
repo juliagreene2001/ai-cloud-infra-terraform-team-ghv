@@ -2,12 +2,38 @@
 
 English adaptation of the latest instructor assignment, incorporated from upstream on 12 November
 2026. Original `seance-3` paths are retained for the instructor's synchronization check.
-**Status: instructions and scaffold only. Session 3 has not been implemented or deployed.**
+**Status as of 16 November 2026: the Pub/Sub infrastructure and API implementation are integrated
+on Ali. Replay measurements and the completed report remain pending. This source integration
+does not deploy or change the existing cloud login or private configuration.**
 
 The assigned namespace is `team-ghv`. The existing private service is already managed through the
 shared GHV Terraform backend. Keep it: importing and repairing it has already been completed.
 Do not repeat the upstream template's delete/recreate instructions for this adopted service.
 All new implementation work belongs on branch `Ali` in both repositories.
+
+## Prepare for the instructor's replay
+
+The steps below retain the original teaching sequence. The completed `infra/pubsub.tf` already
+exists; keep `docs/seance-3/pubsub.tf` as the unfilled teaching copy. Do not overwrite the active
+implementation with that scaffold or repeat the initial missing-endpoint experiment.
+
+Before the next exercise:
+
+1. Check that the agreed `/pubsub` image is deployed, and align the ignored `image` variable with
+   that reviewed tag or digest. A Git merge neither builds an image nor deploys one.
+2. In the existing ignored `infra/terraform.tfvars`, explicitly set
+   `tx_topic = "projects/advanced-cloud-ai/topics/ff-replay"`. The original default remains `ff-tx`.
+   Preserve the full invoker list, course project, team namespace and operator account.
+3. Verify dead-letter forwarding permissions. If the Console cannot inspect the policies, have
+   the instructor verify effective permissions before changing any grant.
+4. Clear old dead-letter messages as instructed, after saving any required evidence.
+5. Record concurrency and maximum instances without changing them; defaults are 1 and 3.
+6. Refresh both gcloud and Application Default Credentials on arrival, then open the Pub/Sub and
+   Cloud Run metrics pages with matching recent time windows. Charts may lag by 2–3 minutes.
+
+The local integration preserves the existing private variables byte-for-byte. Their image and
+topic therefore require an explicit review before the next plan or apply. Publish only reviewed
+team source and the completed report; private variables and personal material remain ignored.
 
 | Stage | Instructor timebox | Required result |
 | --- | --- | --- |
@@ -24,7 +50,7 @@ apply the Pub/Sub resources only after the service exists. Do not use placeholde
 
 The fork's `main` has received the instructor's named-team validation and Session 3 materials.
 Merge current `origin/main` into `Ali` rather than discarding team commits. Preserve the complete
-private `infra/terraform.tfvars` invoker list. The correct settings are:
+private `infra/terraform.tfvars` invoker list. The original connection-stage settings were:
 
 ```hcl
 # infra/backend.tf
@@ -33,6 +59,8 @@ prefix = "team-ghv"
 team = "team-ghv"
 tx_topic = "projects/cymbal-fraudfinder/topics/ff-tx"
 ```
+
+For the upcoming replay, use `projects/advanced-cloud-ai/topics/ff-replay` instead, as described above.
 
 Keep the upstream validation expression `^team(-?[a-z0-9]+)+$` and its 20-character limit.
 The execution helper separately requires this fork's actual GHV namespace.
@@ -68,7 +96,7 @@ transaction topic -> team-ghv-tx-push -> POST /pubsub -> team-ghv-fraud-api
                             +-> team-ghv-tx-dead -> team-ghv-tx-dead-pull
 ```
 
-1. Read the scaffold `docs/seance-3/pubsub.tf` before copying it into `infra/`.
+1. Read the scaffold `docs/seance-3/pubsub.tf`. The completed copy is already in `infra/pubsub.tf`.
 2. Fill its three exercise holes: endpoint `api.uri` plus `/pubsub`; the push account's email;
    the dead topic ID and `max_delivery_attempts = 5`.
 3. Resolve the scaffold's IAM integration with the current configuration: the main service has an
@@ -80,9 +108,8 @@ transaction topic -> team-ghv-tx-push -> POST /pubsub -> team-ghv-fraud-api
 5. Check dead-letter forwarding permissions: the Pub/Sub service agent needs publisher access to
    the dead-letter topic and subscriber access to the source subscription. These are not all present
    in the instructor's starter skeleton. Verify the grants; do not assume another team configured them.
-6. Extend `scripts/terraform.py` and its tests to permit only the exact planned GHV Pub/Sub resources
-   and associated least-privilege grants. The Session 2 helper intentionally rejects unknown resource
-   types; do not bypass it or disable namespace/service protections.
+6. The integrated helper and guard tests permit only the exact GHV Pub/Sub resource names in
+   `advanced-cloud-ai`. Keep those checks and the existing service protections when making changes.
 7. Run format, validation, policy/guard tests and inspect a saved plan before any apply. The only
    service change at this stage should be the reviewed private invoker binding.
 
@@ -144,8 +171,8 @@ uv run --frozen uvicorn app:app --host 127.0.0.1 --port 8000
 curl -i -X POST http://127.0.0.1:8000/pubsub -H 'Content-Type: application/json' --data-binary @../ai-cloud-infra-terraform-team-ghv/docs/seance-3/enveloppe.json
 ```
 
-This currently returns 404 until you implement the route. After implementation, expect 204 and one
-`scored` log. Also test negative amounts (422/rejected), malformed data, failure before acknowledgment,
+The integrated route returns 204 and one `scored` log for a valid transaction. A deployed 404 can
+indicate an older image is still running. Also test negative amounts (422/rejected), malformed data, failure before acknowledgment,
 redelivery, and unchanged existing reference predictions. Keep the full API suite and Ruff passing.
 
 Build a Linux amd64 image, push only to the team's private course registry, and pin its new digest

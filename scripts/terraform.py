@@ -66,6 +66,8 @@ def check_plan(plan: dict) -> None:
             ):
                 raise ValueError("Public invocation is forbidden")
         elif kind == "google_service_account":
+            if values.get("project") != "advanced-cloud-ai":
+                raise ValueError("Unexpected service-account project")
             if values.get("account_id") not in (f"{TEAM}-run", f"{TEAM}-push"):
                 raise ValueError("Unexpected exercise account")
         elif kind in ("google_project_iam_member", "google_storage_bucket_iam_member"):
@@ -81,9 +83,13 @@ def check_plan(plan: dict) -> None:
             if member and member != expected:
                 raise ValueError("Unexpected exercise principal")
         elif kind == "google_pubsub_topic":
+            if values.get("project") != "advanced-cloud-ai":
+                raise ValueError("Unexpected Pub/Sub project")
             if values.get("name") != f"{TEAM}-tx-dead":
                 raise ValueError("Unexpected Pub/Sub topic")
         elif kind == "google_pubsub_subscription":
+            if values.get("project") != "advanced-cloud-ai":
+                raise ValueError("Unexpected Pub/Sub project")
             if values.get("name") not in (f"{TEAM}-tx-push", f"{TEAM}-tx-dead-pull"):
                 raise ValueError("Unexpected Pub/Sub subscription")
         else:
