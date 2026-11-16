@@ -29,10 +29,14 @@ resource "google_pubsub_subscription" "tx" {
   message_retention_duration = "3600s"
 
   push_config {
-    # TODO (a): push_endpoint = the existing service URI followed by /pubsub.
+    # TODO (a): push_endpoint = the existing service URI followed by /pubsub
+
+    push_endpoint = "${google_cloud_run_v2_service.api.uri}/pubsub" # TODO (a): append /pubsub if needed.
+
     oidc_token {
-      # TODO (b): service_account_email = the push account email.
-      audience = google_cloud_run_v2_service.api.uri
+      # TODO (b): service_account_email = the push account email. 
+      service_account_email = google_service_account.push.email
+      audience              = google_cloud_run_v2_service.api.uri
     }
   }
 
@@ -43,12 +47,12 @@ resource "google_pubsub_subscription" "tx" {
 
   # TODO (c): uncomment and complete this policy.
   # Forwarding after the configured count is best effort, not an exact attempt guarantee.
-  # dead_letter_policy {
-  #   dead_letter_topic     =
-  #   max_delivery_attempts =
-  # }
+  dead_letter_policy {
+    dead_letter_topic     = google_pubsub_topic.dead.id
+    max_delivery_attempts = 5
+  }
 
-  labels = { team = var.team }
+  labels     = { team = var.team }
   depends_on = [google_cloud_run_v2_service_iam_binding.invokers]
 }
 

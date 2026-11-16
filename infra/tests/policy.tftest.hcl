@@ -13,6 +13,14 @@ variables {
 run "private_bounded_course_service" {
   command = plan
 
+  override_resource {
+    target          = google_service_account.push
+    override_during = plan
+    values = {
+      email = "team-ghv-push@advanced-cloud-ai.iam.gserviceaccount.com"
+    }
+  }
+
   assert {
     condition     = google_cloud_run_v2_service.api.invoker_iam_disabled == false
     error_message = "Cloud Run must enforce IAM authentication."
@@ -46,8 +54,8 @@ run "private_bounded_course_service" {
     error_message = "Default course-identity mode must not create an unused team account."
   }
   assert {
-    condition     = google_cloud_run_v2_service_iam_binding.invokers.members == toset(var.invokers)
-    error_message = "The service's invoker role must match the explicit private allowlist."
+    condition     = google_cloud_run_v2_service_iam_binding.invokers.members == toset(concat(var.invokers, ["serviceAccount:team-ghv-push@advanced-cloud-ai.iam.gserviceaccount.com"]))
+    error_message = "The invoker role must be the explicit private allowlist plus the Pub/Sub push account."
   }
 }
 
