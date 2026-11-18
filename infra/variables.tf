@@ -19,17 +19,22 @@ variable "team" {
 }
 
 variable "image" {
-  description = "Image to deploy, including its tag: europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/<team>-fraud-api:<tag>."
+  description = "Versioned team fraud-api image or the instructor's Session 4 reference image."
   type        = string
 
   validation {
-    condition = can(regex(
-      "^${var.region}-docker[.]pkg[.]dev/${var.project_id}/cloud-ai/${var.team}-fraud-api(:[A-Za-z0-9_.-]+|@sha256:[a-f0-9]{64})$",
-      var.image
-    ))
-    error_message = "Use this team's versioned fraud-api image in the course's regional Artifact Registry."
+    condition = (
+      var.image == "${var.region}-docker.pkg.dev/${var.project_id}/cloud-ai/ref-fraud-api:td4" ||
+      can(regex(
+        "^${var.region}-docker[.]pkg[.]dev/${var.project_id}/cloud-ai/${var.team}-fraud-api(:[A-Za-z0-9_.-]+|@sha256:[a-f0-9]{64})$",
+        var.image
+      ))
+    )
+
+    error_message = "Use this team's versioned fraud-api image or the instructor's ref-fraud-api:td4 image in the course's regional Artifact Registry."
   }
 }
+
 
 variable "invokers" {
   description = "Identities allowed to invoke the service, for example user:firstname@albertschool.com."
