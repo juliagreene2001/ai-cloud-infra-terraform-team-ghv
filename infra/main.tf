@@ -107,6 +107,25 @@ resource "google_cloud_run_v2_service" "api" {
         name  = "XGB_NTHREAD"
         value = "1"
       }
+      env {
+        name  = "FEATURE_SOURCE"
+        value = var.feature_source
+      }
+
+      env {
+        name  = "GOOGLE_CLOUD_PROJECT"
+        value = var.project_id
+      }
+
+      env {
+        name  = "BQ_DATASET"
+        value = local.dataset
+      }
+
+      env {
+        name  = "FIRESTORE_DATABASE"
+        value = var.team
+      }
 
       startup_probe {
         initial_delay_seconds = 0
