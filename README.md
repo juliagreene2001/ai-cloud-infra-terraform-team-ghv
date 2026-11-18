@@ -64,3 +64,21 @@ an image, change the operator's gcloud login, or modify the existing private var
 
 The replay measurements and [Session 3 report](docs/seance-3/compte-rendu.md) are still pending.
 See the [implementation summary](docs/summary-sessions-2-3.md) for completed code and remaining work.
+
+## Session 5: teacher materials
+
+The [Session 5 handout](docs/seance-5.md) covers reproducible model retraining,
+parallel hyperparameter search with 1, 4 and 8 workers, training costs, and a
+measured decision about admitting a challenger model to the Vertex AI registry.
+
+| File | Purpose |
+| --- | --- |
+| [job.tf](docs/seance-5/job.tf) | Cloud Run training/search job scaffold, training account and private Optuna connectivity |
+| [custom-job.sh](docs/seance-5/custom-job.sh) | Vertex AI final-training job script |
+| [compte-rendu.md](docs/seance-5/compte-rendu.md) | Session 5 report template |
+
+These are the teacher's original exercise templates, with placeholders to
+complete. Substitute `team-ghv` for the sample `team1` identifier when preparing
+your configuration. Read the handout before copying or executing them; its test
+dataset is reserved for the final gate. Downloading the materials does not
+create training jobs or change the existing scoring service.
