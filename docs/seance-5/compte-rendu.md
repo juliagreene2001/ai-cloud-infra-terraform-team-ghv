@@ -24,12 +24,10 @@ Courbe d'accélération : lien ou image, avec la droite idéale.
 
 Coût de chaque recherche : prix relevés (date), formule, valeurs, hypothèses.
 
-## Threads sur Vertex AI (étape 3, 3 mois)
+## Entraînement final sur Vertex AI (étape 3, 12 mois)
 
 | Threads | `rows.train` | `load` | `fit` | AP de validation |
 | --- | --- | --- | --- | --- |
-| 1 | ... | ... s | ... s | ... |
-| 4 | ... | ... s | ... s | ... |
 | 8 | ... | ... s | ... s | ... |
 
 ## Six questions

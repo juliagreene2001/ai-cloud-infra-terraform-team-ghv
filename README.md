@@ -82,3 +82,33 @@ complete. Substitute `team-ghv` for the sample `team1` identifier when preparing
 your configuration. Read the handout before copying or executing them; its test
 dataset is reserved for the final gate. Downloading the materials does not
 create training jobs or change the existing scoring service.
+
+## Sessions 6 and 7: teacher materials
+
+The [Session 6 handout](docs/seance-6.md) covers staged rollout of a challenger
+model, diagnosing an incident, and rolling back. The [Session 7 handout](docs/seance-7.md)
+covers serving an LLM on GPU, measuring its latency and throughput, costing it,
+tracing it, and judging a candidate model.
+
+| File | Purpose |
+| --- | --- |
+| [release.tf](docs/seance-6/release.tf) | Shadow subscription and alert-policy scaffold |
+| [release.sh](docs/seance-6/release.sh) | Tagged, trafficless revision release script |
+| [shadow.sh](docs/seance-6/shadow.sh) | Shadow subscription script |
+| [validate.sh](docs/seance-6/validate.sh) | Validation job script |
+| [promote.sh](docs/seance-6/promote.sh) | `champion` alias promotion script |
+| [lib.sh](docs/seance-6/lib.sh) | Shared library loaded by the above scripts |
+| [release.yml](docs/seance-6/release.yml) | `workflow_dispatch` CD workflow with WIF authentication |
+| [measure.py](docs/seance-6/measure.py) | Per-revision measurement from service logs |
+| [mesures.md](docs/seance-6/mesures.md), [post-mortem.md](docs/seance-6/post-mortem.md), [checklist.md](docs/seance-6/checklist.md) | Session 6 report templates |
+| [llm/](docs/seance-7/llm/) | Team LLM service Terraform module (one L4 GPU, shared-bucket state, `<team>/llm` prefix) |
+| [load.py](docs/seance-7/load.py) | Load-testing script |
+| [eval.py](docs/seance-7/eval.py) | Evaluation script against [kyc_eval/](docs/seance-7/kyc_eval/) |
+| [memory.py](docs/seance-7/memory.py) | Server memory script |
+| [explain_alert.py](docs/seance-7/explain_alert.py) | Alert-explanation script, with [alerts.jsonl](docs/seance-7/alerts.jsonl) |
+| [llmclient.py](docs/seance-7/llmclient.py) | Shared LLM client library |
+| [mesures.md](docs/seance-7/mesures.md), [cout.md](docs/seance-7/cout.md), [fiche.md](docs/seance-7/fiche.md) | Session 7 report templates |
+
+As with Session 5, these are the teacher's original templates: substitute
+`team-ghv` for the sample identifier, and read each handout before copying or
+executing the scripts.
