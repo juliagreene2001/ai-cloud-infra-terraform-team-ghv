@@ -1,43 +1,52 @@
-# Mesures séance 6 — team1
+# Mesures séance 6 — team-ghv
 
 ## Valeurs de référence (étape 0)
 
 | Mesure | Valeur |
 | --- | --- |
-| Heure du relevé ; fenêtre | ... ; 10 min |
-| Révision en service (tag `champion`) | ... |
-| Latence p95 (`p95 ms` de `measure.py`) | ... ms |
-| Taux d'erreur (`erreurs`) | ... % |
-| Taux d'alerte (`alertes`) | ... % |
-| Âge du plus ancien message non acquitté (tableau de bord) | ... s |
+| Heure du relevé ; fenêtre | 20 novembre 2026 à 13:19:01 CET (12:19:01 UTC), sur les 10 minutes précédentes |
+| Révision en service (tag `champion`) | `team-ghv-scorer-prep-1119180441` à 100 % du trafic |
+| Livraisons et transactions distinctes (`measure.py`) | 6 844 livraisons, 6 279 transactions distinctes scorées |
+| Latence applicative p50 et p95 (`measure.py`) | 1,4 ms et 2,6 ms |
+| Taux d'erreur (`erreurs`) | 0,0 % à la précision affichée |
+| Taux d'alerte (`alertes`) | 11,2 % |
+| Âge du plus ancien message non acquitté (tableau de bord) | Maximum observé d’environ 70 s à 13:15 CET sur `team-ghv-live-push` (1,167 min dans l’infobulle) |
+
+Le tableau de bord `TD6 team-ghv` montre un pic bref de l’âge du plus ancien message à 13:15 CET, puis un retour près de zéro. La sortie de `measure.py` décrit les livraisons journalisées par le service sur la fenêtre de référence. La cause du pic reste à établir.
 
 ## Critères (étape 1)
 
-Heure à laquelle les critères sont figés : ...
+Heure à laquelle les critères sont figés : **À RENSEIGNER EN UTC AVANT LE COMMIT**
 
-Objectif de service : ... % des transactions scorées en moins de ... ms.
+Objectif de service : au moins 95 % des transactions scorées en 4 ms ou moins de temps de traitement applicatif.
 
 | Signal | Référence | Seuil d'avancement | Seuil de retour arrière | Source |
 | --- | --- | --- | --- | --- |
-| Latence p95 | ... ms | ... | ... | `measure.py`, `p95 ms` |
-| Taux d'erreur | ... % | ... | ... | `measure.py`, `erreurs` |
-| Taux d'alerte | ... % | ... | ... | `measure.py`, `alertes` |
-| Âge du plus ancien message | ... s | ... | ... | tableau de bord |
+| Latence p95 | 2,6 ms | ≤ 4 ms | > 6 ms | `measure.py`, `p95 ms` |
+| Taux d'erreur | 0,0 % affiché | ≤ 0,5 % | > 1 % | `measure.py`, `erreurs` |
+| Taux d'alerte | 11,2 % | Écart de ≤ 4 points de pourcentage par rapport au taux attendu | Écart de > 7 points par rapport au taux attendu | `measure.py`, `alertes` |
+| Âge du plus ancien message | Proche de 0 s la plupart du temps, pic d’environ 70 s | ≤ 15 s | > 60 s sur deux relevés consécutifs à une minute d’intervalle | tableau de bord |
+
+Avancer si les quatre seuils d’avancement sont respectés. Revenir en arrière si un seuil de retour arrière est franchi selon la durée indiquée. Entre les deux, ou si les mesures sont incomplètes, maintenir le palier et examiner les courbes. Un relevé isolé au-dessus de 60 s exige une vérification du relevé suivant. Cette règle tient compte du pic bref observé à 13:15 CET.
+
+Le taux d’alerte attendu est de 11,2 % au départ. Fixer la valeur attendue pour le candidat à partir des observations en ombre et l’horodater avant le premier palier de trafic réel. Les marges de 4 et 7 points restent fixes.
 
 Borne d'alertes fixée après l'ombre (étape 2) : ... ; écart d'alertes mesuré en ombre : ... points ; heure : ...
 
-Durée d'observation par palier : ... min.
+Durée d'observation par palier : 5 minutes après confirmation de la répartition du trafic.
 
 Commande de retour arrière (étapes 1 à 3) :
 
 ```bash
-gcloud run services update-traffic team1-scorer --region europe-west1 --to-tags champion=100
+gcloud run services update-traffic team-ghv-scorer --project advanced-cloud-ai --region europe-west1 \
+  --to-revisions=team-ghv-scorer-prep-1119180441=100
 ```
 
 Commande de retour arrière (à partir du palier à 100 %) ; `champion=100` si vous avez refusé le challenger :
 
 ```bash
-gcloud run services update-traffic team1-scorer --region europe-west1 --to-tags candidate=100
+gcloud run services update-traffic team-ghv-scorer --project advanced-cloud-ai --region europe-west1 \
+  --to-tags=candidate=100
 ```
 
 ## Validation (étape 2)
