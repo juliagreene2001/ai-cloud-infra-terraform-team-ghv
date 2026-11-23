@@ -1,0 +1,172 @@
+{
+  "project": "advanced-cloud-ai",
+  "region": "europe-west1",
+  "service": "team-ghv-fraud-api",
+  "revisions": [
+    {
+      "memory": "1Gi",
+      "revision": "team-ghv-fraud-api-00002-spg",
+      "monitoring_query_start_utc": "2026-11-12T16:19:02.065821+00:00",
+      "monitoring_query_end_utc": "2026-11-12T16:34:42.386028Z",
+      "http_200_request_latency_5min": {
+        "p50": [
+          {
+            "end_utc": "2026-11-12T16:34:42.386028Z",
+            "ms": 5.0495049504950495
+          }
+        ],
+        "p99": [
+          {
+            "end_utc": "2026-11-12T16:34:42.386028Z",
+            "ms": 9.998019801980199
+          }
+        ]
+      },
+      "startup_events": [
+        {
+          "end_utc": "2026-11-12T16:31:00Z",
+          "count": 1,
+          "mean_ms": 10094.424
+        }
+      ],
+      "sampled_instance_count": {
+        "2026-11-12T16:34:00Z": 1.0,
+        "2026-11-12T16:33:00Z": 1.0,
+        "2026-11-12T16:32:00Z": 1.0
+      },
+      "client_runs": {
+        "health": {
+          "started_utc": "2026-11-12T16:32:27.113633+00:00",
+          "finished_utc": "2026-11-12T16:32:35.437857+00:00",
+          "requests": 50,
+          "concurrency": 1,
+          "successes": 50,
+          "failures": 0,
+          "p50_ms": 160.48891849641223,
+          "p99_ms": 462.58813794585865
+        },
+        "predict": {
+          "started_utc": "2026-11-12T16:32:36.413974+00:00",
+          "finished_utc": "2026-11-12T16:32:46.772224+00:00",
+          "requests": 50,
+          "concurrency": 1,
+          "successes": 50,
+          "failures": 0,
+          "p50_ms": 156.25077050208347,
+          "p99_ms": 1034.172284173108
+        }
+      }
+    },
+    {
+      "memory": "2Gi",
+      "revision": "team-ghv-fraud-api-00003-ffm",
+      "monitoring_query_start_utc": "2026-11-12T16:19:02.065821+00:00",
+      "monitoring_query_end_utc": "2026-11-12T16:46:35.890838Z",
+      "http_200_request_latency_5min": {
+        "p50": [
+          {
+            "end_utc": "2026-11-12T16:46:35.890838Z",
+            "ms": 5.148514851485149
+          }
+        ],
+        "p99": [
+          {
+            "end_utc": "2026-11-12T16:46:35.890838Z",
+            "ms": 23.493733357600004
+          }
+        ]
+      },
+      "startup_events": [
+        {
+          "end_utc": "2026-11-12T16:41:00Z",
+          "count": 1,
+          "mean_ms": 15283.01
+        }
+      ],
+      "sampled_instance_count": {
+        "2026-11-12T16:46:00Z": 1.0,
+        "2026-11-12T16:45:00Z": 1.0,
+        "2026-11-12T16:44:00Z": 1.0,
+        "2026-11-12T16:43:00Z": 1.0,
+        "2026-11-12T16:42:00Z": 1.0,
+        "2026-11-12T16:41:00Z": 1.0
+      },
+      "client_runs": {
+        "health": {
+          "started_utc": "2026-11-12T16:43:41.879229+00:00",
+          "finished_utc": "2026-11-12T16:43:46.763975+00:00",
+          "requests": 50,
+          "concurrency": 1,
+          "successes": 50,
+          "failures": 0,
+          "p50_ms": 92.2452200029511,
+          "p99_ms": 244.08044378345903
+        },
+        "predict": {
+          "started_utc": "2026-11-12T16:43:47.834615+00:00",
+          "finished_utc": "2026-11-12T16:43:52.632957+00:00",
+          "requests": 50,
+          "concurrency": 1,
+          "successes": 50,
+          "failures": 0,
+          "p50_ms": 94.93299449968617,
+          "p99_ms": 142.37780370647667
+        }
+      }
+    }
+  ],
+  "reference_checks": {
+    "1Gi": {
+      "unauthenticated_status": 403,
+      "reference_predictions": 500,
+      "max_absolute_error": 7.275957614183426e-12,
+      "timings_ms": {
+        "features": 2.7000630000202364,
+        "predict": 38.477141999919695,
+        "handler": 45.10076799988383
+      }
+    },
+    "2Gi": {
+      "unauthenticated_status": 403,
+      "reference_predictions": 500,
+      "max_absolute_error": 7.275957614183426e-12,
+      "timings_ms": {
+        "features": 3.3894299999701616,
+        "predict": 38.248367000051076,
+        "handler": 44.87466699993092
+      }
+    },
+    "final": {
+      "unauthenticated_status": 403,
+      "reference_predictions": 500,
+      "max_absolute_error": 7.275957614183426e-12,
+      "timings_ms": {
+        "features": 1.8802129998221062,
+        "predict": 5.888605000109237,
+        "handler": 12.023072999909346
+      }
+    },
+    "manual": {
+      "unauthenticated_status": 403,
+      "reference_predictions": 500,
+      "max_absolute_error": 7.275957614183426e-12,
+      "timings_ms": {
+        "features": 2.384641999924497,
+        "predict": 37.59933100013768,
+        "handler": 43.617265999955634
+      }
+    }
+  },
+  "terraform_plan_excerpts": {
+    "1Gi": [
+      "Changes to Outputs:",
+      "  ~ service_url                   = \"\" -> \"https://team-ghv-fraud-api-ueiaychpgq-ew.a.run.app\""
+    ],
+    "2Gi": [
+      "No changes. Your infrastructure matches the configuration."
+    ],
+    "final": [
+      "No changes. Your infrastructure matches the configuration."
+    ]
+  }
+}
