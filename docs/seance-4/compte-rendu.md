@@ -5,6 +5,10 @@ on 18 November 2026. Times below are Europe/Paris (CET, UTC+1), unless explicitl
 marked UTC. This is an in-progress report: verified results are separated from
 expected checkpoints and measurements still required.
 
+The accompanying data include BigQuery job IDs and byte counts, the 500
+Parquet lookup times used for the percentiles, and both HNSW benchmark tables.
+[Download the measurement data](measurements.json).
+
 ## Required measurements
 
 | Measurement | Observed result / status |

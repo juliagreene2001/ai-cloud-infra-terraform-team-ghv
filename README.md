@@ -4,6 +4,17 @@ Terraform configuration for `team-ghv-fraud-api` in project `advanced-cloud-ai`,
 `europe-west1`. The companion application is
 [fraud-api-albertschool-team-ghv](https://github.com/juliagreene2001/fraud-api-albertschool-team-ghv).
 
+## Team reports and measurements
+
+| Lab | Report and evidence |
+| --- | --- |
+| TD1 · Measure the scorer | [Direct benchmark and 30 request timings](docs/seance-1/mesures.md). The indexed comparison, load test and completed notebook are still outstanding. |
+| TD2 · Deploy on Cloud Run | [Deployment report](docs/rapport-seance-2.md), [Monitoring and Terraform results](docs/seance-2/measurements.json) and [200 client requests](docs/seance-2/client-samples.csv). |
+| TD3 · Score a transaction stream | [Replay observations and six answers](docs/seance-3/compte-rendu.md), including backlog recovery and delivery of the invalid transaction. |
+| TD4 · Store and read features | [Team report](docs/seance-4/compte-rendu.md) and [query, latency and vector-search measurements](docs/seance-4/measurements.json). Only Parquet has a 500-request latency sample. |
+| TD5 · Retrain and decide | [Training runs, costs and registry decision](docs/seance-5/compte-rendu.md) and [parallel search results](docs/seance-5/search-speedup.png). |
+| TD6 · Roll out and recover | [Stage decisions](docs/seance-6/mesures.md), [validation output](docs/seance-6/validation.txt), [post-mortem](docs/seance-6/post-mortem.md) and [checklist](docs/seance-6/checklist.md). The rollout stopped at 10%. |
+
 ## Scope
 
 - Uses the actual `team-ghv` namespace for resources, labels, images and shared state.
@@ -45,8 +56,7 @@ unit tests are in `tests/`; run them with pytest or the companion application's 
 Pull-request CI runs the mocked policy tests and guard tests without cloud credentials.
 
 See [operations](docs/OPERATIONS.md), [the English GHV assignment](docs/session-2.md), and
-[the anonymized session report](docs/report-session-2.md). Raw evidence, personal study notes,
-archives and local configuration are excluded from version control.
+[the deployment report](docs/rapport-seance-2.md).
 
 ## Session 3: integrated on Ali
 
@@ -62,8 +72,8 @@ Read the current preparation section in [Session 3](docs/seance-3.md). Preserve 
 The default topic remains the original `ff-tx` teaching stream. Source integration does not deploy
 an image, change the operator's gcloud login, or modify the existing private variables.
 
-The replay measurements and [Session 3 report](docs/seance-3/compte-rendu.md) are still pending.
-See the [implementation summary](docs/summary-sessions-2-3.md) for completed code and remaining work.
+The [Session 3 report](docs/seance-3/compte-rendu.md) records the November 16 replay.
+The [implementation summary](docs/summary-sessions-2-3.md) documents the earlier setup.
 
 ## Session 5: teacher materials
 
@@ -75,13 +85,10 @@ measured decision about admitting a challenger model to the Vertex AI registry.
 | --- | --- |
 | [job.tf](docs/seance-5/job.tf) | Cloud Run training/search job scaffold, training account and private Optuna connectivity |
 | [custom-job.sh](docs/seance-5/custom-job.sh) | Vertex AI final-training job script |
-| [compte-rendu.md](docs/seance-5/compte-rendu.md) | Session 5 report template |
+| [compte-rendu.md](docs/seance-5/compte-rendu.md) | Team training measurements and registry decision |
 
-These are the teacher's original exercise templates, with placeholders to
-complete. Substitute `team-ghv` for the sample `team1` identifier when preparing
-your configuration. Read the handout before copying or executing them; its test
-dataset is reserved for the final gate. Downloading the materials does not
-create training jobs or change the existing scoring service.
+The handout reserves the test set for the final gate. The team report links to the first
+test read and records its decision.
 
 ## Sessions 6 and 7: teacher materials
 
@@ -100,7 +107,7 @@ tracing it, and judging a candidate model.
 | [lib.sh](docs/seance-6/lib.sh) | Shared library loaded by the above scripts |
 | [release.yml](docs/seance-6/release.yml) | `workflow_dispatch` CD workflow with WIF authentication |
 | [measure.py](docs/seance-6/measure.py) | Per-revision measurement from service logs |
-| [mesures.md](docs/seance-6/mesures.md), [post-mortem.md](docs/seance-6/post-mortem.md), [checklist.md](docs/seance-6/checklist.md) | Session 6 report templates |
+| [mesures.md](docs/seance-6/mesures.md), [post-mortem.md](docs/seance-6/post-mortem.md), [checklist.md](docs/seance-6/checklist.md) | Team rollout, rollback and supporting evidence |
 | [llm/](docs/seance-7/llm/) | Team LLM service Terraform module (one L4 GPU, shared-bucket state, `<team>/llm` prefix) |
 | [load.py](docs/seance-7/load.py) | Load-testing script |
 | [eval.py](docs/seance-7/eval.py) | Evaluation script against [kyc_eval/](docs/seance-7/kyc_eval/) |
@@ -109,6 +116,5 @@ tracing it, and judging a candidate model.
 | [llmclient.py](docs/seance-7/llmclient.py) | Shared LLM client library |
 | [mesures.md](docs/seance-7/mesures.md), [cout.md](docs/seance-7/cout.md), [fiche.md](docs/seance-7/fiche.md) | Session 7 report templates |
 
-As with Session 5, these are the teacher's original templates: substitute
-`team-ghv` for the sample identifier, and read each handout before copying or
-executing the scripts.
+The exercise scaffolds use sample team identifiers. Read the relevant handout before
+running the scripts against the shared project.

@@ -1,8 +1,8 @@
 # Sessions 2 and 3 — Team GHV implementation and next steps
 
-Updated: 16 November 2026. Session 2 has a measured report. Session 3 source is integrated on
-`Ali` in both repositories; the instructor's load exercise and completed report remain pending.
-This integration performs no cloud deployment or GitHub push.
+This note records the preparation on 16 November 2026. The team subsequently captured
+the replay and dead-letter delivery. See the [TD2 measurements](rapport-seance-2.md) and
+[TD3 replay report](seance-3/compte-rendu.md) for the observed results.
 
 ## Accounts, names and ownership
 
@@ -88,7 +88,7 @@ Keep concurrency and the maximum instance count unchanged for the instructor's c
 The source defaults are concurrency 1 and maximum 3 instances. A new image tag alone does not
 build or deploy code. Review a saved plan; preserve the existing main service and shared state.
 
-## Required remaining work
+## Pre-replay checklist recorded on November 16
 
 1. Review the integrated changes on `Ali` and publish the approved source for teammate review.
 2. Reconcile the private image and topic settings with the agreed deployment before any apply.
