@@ -4,11 +4,42 @@ Les prix restent vides : le prix de l'API est relu sur la page de tarifs le jour
 
 ## Prix relevés
 
+Prix relevés le 24 novembre 2026 (Relevé : lus sur les deux pages de tarifs, en dollars américains, tarif standard sans remise d'engagement).
+
 | Prix | Valeur | Source et date |
 | --- | --- | --- |
-| Prix horaire du GPU (L4 sur Cloud Run, région ...) | ... $ / h | ... |
-| Prix d'entrée de l'API (modèle ...) | ... $ par million de tokens | ... |
-| Prix de sortie de l'API | ... $ par million de tokens | ... |
+| Prix horaire du GPU (L4 sur Cloud Run, région europe-west4) | 1,05 $ / h (1,0465 avant arrondi) | [Tarifs de Cloud Run](https://cloud.google.com/run/pricing), tableau « Services (Instance-based billing) », prix par défaut (USD) du tableau de la région Netherlands (europe-west4), relu le 24 novembre 2026 ; calcul ci-dessous |
+| Prix d'entrée de l'API (modèle gemini-3.5-flash-lite) | 0,30 $ par million de tokens | [Tarifs de Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/pricing), onglet « Standard », famille « Gemini 3 », ligne « Gemini 3.5 Flash-Lite », entrée texte, image, vidéo, audio, endpoint global, au plus 200 K tokens d'entrée, relu le 24 novembre 2026 |
+| Prix de sortie de l'API | 2,50 $ par million de tokens | Même page, même ligne, « Text output (response and reasoning) », endpoint global, au plus 200 K tokens d'entrée, relu le 24 novembre 2026 |
+
+Choix à confirmer en équipe : l'endpoint retenu est l'endpoint global, qui est la première ligne de chaque modèle. L'endpoint non global (régional) est facturé 10 % plus cher sur la même page : 0,33 $ en entrée et 2,75 $ en sortie par million de tokens. La page n'affiche pas de date de mise à jour : la date retenue est celle de la lecture.
+
+### Prix horaire du GPU
+
+La page de Cloud Run publie un tableau par région. europe-west4 (Netherlands) figure sous « Subject to Tier 1 pricing » (comme us-central1) et son tableau donne les prix unitaires ci-dessous, facturés à la seconde avec la facturation par instance (CPU toujours alloué) :
+
+```text
+prix horaire = (prix du GPU par seconde + 4 × prix d'un vCPU par seconde + 16 × prix d'un Gio par seconde) × 3 600
+```
+
+| Ressource (instance du service : 1 GPU, 4 vCPU, 16 Gio) | Prix unitaire | Quantité | Par seconde |
+| --- | --- | --- | --- |
+| GPU NVIDIA L4, sans redondance zonale (« non-zonal redundancy ») | 0,0001867 $ par seconde | 1 | 0,0001867 $ |
+| CPU | 0,000018 $ par vCPU-seconde | 4 | 0,000072 $ |
+| Mémoire | 0,000002 $ par Gio-seconde | 16 | 0,000032 $ |
+| Total | | | 0,0002907 $ par seconde |
+
+Calcul fait avec un court script Python (décimaux exacts) :
+
+```python
+from decimal import Decimal as D
+gpu_s, vcpu_s, gib_s = D("0.0001867"), D("0.000018"), D("0.000002")
+hourly = (gpu_s + 4 * vcpu_s + 16 * gib_s) * 3600   # 1.04652
+```
+
+Résultat : 0,0002907 × 3 600 = **1,0465 $ / h, soit 1,05 $ / h** (Dérivé : formule du sujet appliquée aux trois prix relevés).
+
+Vérification : l'estimation du sujet est 1,05 $ / h ; l'écart est de −0,3 %, très en dessous de la tolérance de ±25 % (0,79 à 1,31 $ / h). Il n'y a pas d'écart à expliquer : l'estimation du sujet est arrondie. Pour mémoire, un palier 2 donnerait 1,26 $ / h (+20 %, dans la tolérance aussi), mais europe-west4 est au palier 1.
 
 ## Hypothèses du fil rouge
 
