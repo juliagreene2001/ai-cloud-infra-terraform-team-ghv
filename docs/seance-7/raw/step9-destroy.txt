@@ -1,0 +1,189 @@
+google_service_account.llm: Refreshing state... [id=projects/advanced-cloud-ai/serviceAccounts/team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com]
+google_cloud_run_v2_service.llm: Refreshing state... [id=projects/advanced-cloud-ai/locations/europe-west4/services/team-ghv-llm]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  - destroy
+
+Terraform will perform the following actions:
+
+  # google_cloud_run_v2_service.llm will be destroyed
+  - resource "google_cloud_run_v2_service" "llm" {
+      - annotations             = {} -> null
+      - conditions              = [
+          - {
+              - last_transition_time = "2026-11-24T23:09:28.227310Z"
+              - state                = "CONDITION_SUCCEEDED"
+              - type                 = "RoutesReady"
+                # (5 unchanged attributes hidden)
+            },
+          - {
+              - last_transition_time = "2026-11-24T23:09:05.077142Z"
+              - state                = "CONDITION_SUCCEEDED"
+              - type                 = "ConfigurationsReady"
+                # (5 unchanged attributes hidden)
+            },
+        ] -> null
+      - create_time             = "2026-11-24T22:46:42.175765Z" -> null
+      - creator                 = "<adresse>" -> null
+      - custom_audiences        = [] -> null
+      - default_uri_disabled    = false -> null
+      - deletion_policy         = "DELETE" -> null
+      - deletion_protection     = false -> null
+      - effective_annotations   = {} -> null
+      - effective_labels        = {
+          - "goog-terraform-provisioned" = "true"
+          - "team"                       = "team-ghv"
+        } -> null
+      - etag                    = "\"CK-vmNgGEKCn35QB/cHJvamVjdHMvYWR2YW5jZWQtY2xvdWQtYWkvbG9jYXRpb25zL2V1cm9wZS13ZXN0NC9zZXJ2aWNlcy90ZWFtLWdodi1sbG0\"" -> null
+      - generation              = "2" -> null
+      - iap_enabled             = false -> null
+      - id                      = "projects/advanced-cloud-ai/locations/europe-west4/services/team-ghv-llm" -> null
+      - ingress                 = "INGRESS_TRAFFIC_ALL" -> null
+      - invoker_iam_disabled    = false -> null
+      - labels                  = {} -> null
+      - last_modifier           = "<adresse>" -> null
+      - latest_created_revision = "projects/advanced-cloud-ai/locations/europe-west4/services/team-ghv-llm/revisions/team-ghv-llm-00002-t4b" -> null
+      - latest_ready_revision   = "projects/advanced-cloud-ai/locations/europe-west4/services/team-ghv-llm/revisions/team-ghv-llm-00002-t4b" -> null
+      - launch_stage            = "GA" -> null
+      - location                = "europe-west4" -> null
+      - name                    = "team-ghv-llm" -> null
+      - observed_generation     = "2" -> null
+      - project                 = "advanced-cloud-ai" -> null
+      - reconciling             = false -> null
+      - ssh_enabled             = false -> null
+      - terminal_condition      = [
+          - {
+              - last_transition_time = "2026-11-24T23:09:28.261248Z"
+              - state                = "CONDITION_SUCCEEDED"
+              - type                 = "Ready"
+                # (5 unchanged attributes hidden)
+            },
+        ] -> null
+      - terraform_labels        = {
+          - "goog-terraform-provisioned" = "true"
+          - "team"                       = "team-ghv"
+        } -> null
+      - traffic_statuses        = [
+          - {
+              - percent  = 100
+              - revision = "team-ghv-llm-00002-t4b"
+              - type     = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST"
+                # (2 unchanged attributes hidden)
+            },
+        ] -> null
+      - uid                     = "6995175b-c991-4e03-9a74-ffc68d426eb8" -> null
+      - update_time             = "2026-11-24T23:03:11.311940Z" -> null
+      - uri                     = "https://team-ghv-llm-ueiaychpgq-ez.a.run.app" -> null
+      - urls                    = [
+          - "https://team-ghv-llm-191726065850.europe-west4.run.app",
+          - "https://team-ghv-llm-ueiaychpgq-ez.a.run.app",
+        ] -> null
+        # (5 unchanged attributes hidden)
+
+      - scaling {
+          - manual_instance_count = 0 -> null
+          - max_instance_count    = 3 -> null
+          - min_instance_count    = 0 -> null
+            # (1 unchanged attribute hidden)
+        }
+
+      - template {
+          - annotations                      = {} -> null
+          - gpu_zonal_redundancy_disabled    = true -> null
+          - health_check_disabled            = false -> null
+          - labels                           = {} -> null
+          - max_instance_request_concurrency = 16 -> null
+          - service_account                  = "team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com" -> null
+          - session_affinity                 = false -> null
+          - timeout                          = "300s" -> null
+            # (3 unchanged attributes hidden)
+
+          - containers {
+              - args             = [] -> null
+              - build_info       = [] -> null
+              - command          = [] -> null
+              - depends_on       = [] -> null
+              - image            = "europe-west1-docker.pkg.dev/advanced-cloud-ai/cloud-ai/llm-server:td7-q8" -> null
+                name             = null
+              - sandbox_launcher = false -> null
+                # (2 unchanged attributes hidden)
+
+              - env {
+                  - name  = "LLAMA_ARG_N_PARALLEL" -> null
+                  - value = "16" -> null
+                }
+
+              - ports {
+                  - container_port = 8080 -> null
+                  - name           = "http1" -> null
+                }
+
+              - resources {
+                  - cpu_idle          = false -> null
+                  - limits            = {
+                      - "cpu"            = "4"
+                      - "memory"         = "16Gi"
+                      - "nvidia.com/gpu" = "1"
+                    } -> null
+                  - startup_cpu_boost = false -> null
+                }
+
+              - startup_probe {
+                  - failure_threshold     = 30 -> null
+                  - initial_delay_seconds = 0 -> null
+                  - period_seconds        = 10 -> null
+                  - timeout_seconds       = 5 -> null
+
+                  - http_get {
+                      - path = "/health" -> null
+                      - port = 8080 -> null
+                    }
+                }
+            }
+
+          - node_selector {
+              - accelerator = "nvidia-l4" -> null
+            }
+
+          - scaling {
+              - concurrency_utilization = 0 -> null
+              - cpu_utilization         = 0 -> null
+              - max_instance_count      = 1 -> null
+              - min_instance_count      = 0 -> null
+            }
+        }
+
+      - traffic {
+          - percent  = 100 -> null
+          - type     = "TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST" -> null
+            # (2 unchanged attributes hidden)
+        }
+    }
+
+  # google_service_account.llm will be destroyed
+  - resource "google_service_account" "llm" {
+      - account_id      = "team-ghv-llm" -> null
+      - deletion_policy = "DELETE" -> null
+      - disabled        = false -> null
+      - display_name    = "team-ghv : service LLM" -> null
+      - email           = "team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com" -> null
+      - id              = "projects/advanced-cloud-ai/serviceAccounts/team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com" -> null
+      - member          = "serviceAccount:team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com" -> null
+      - name            = "projects/advanced-cloud-ai/serviceAccounts/team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com" -> null
+      - project         = "advanced-cloud-ai" -> null
+      - unique_id       = "110591971193526786116" -> null
+        # (1 unchanged attribute hidden)
+    }
+
+Plan: 0 to add, 0 to change, 2 to destroy.
+
+Changes to Outputs:
+  - url = "https://team-ghv-llm-ueiaychpgq-ez.a.run.app" -> null
+google_cloud_run_v2_service.llm: Destroying... [id=projects/advanced-cloud-ai/locations/europe-west4/services/team-ghv-llm]
+google_cloud_run_v2_service.llm: Still destroying... [id=projects/advanced-cloud-ai/locations/europe-west4/services/team-ghv-llm, 00m10s elapsed]
+google_cloud_run_v2_service.llm: Destruction complete after 10s
+google_service_account.llm: Destroying... [id=projects/advanced-cloud-ai/serviceAccounts/team-ghv-llm@advanced-cloud-ai.iam.gserviceaccount.com]
+google_service_account.llm: Destruction complete after 1s
+
+Destroy complete! Resources: 2 destroyed.
