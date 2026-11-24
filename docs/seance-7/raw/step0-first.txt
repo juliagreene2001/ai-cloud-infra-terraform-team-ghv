@@ -1,0 +1,6 @@
+{"choices":[{"finish_reason":"stop","index":0,"message":{"role":"assistant","content":"A fraud alert is a notice placed on a credit report by a consumer to warn creditors that they may be at risk of identity theft or fraud."}}],"created":1795560631,"model":"qwen2.5-7b-instruct-q4_k_m","system_fingerprint":"b12169-3ed7284f2","object":"chat.completion","usage":{"completion_tokens":30,"prompt_tokens":40,"total_tokens":70,"prompt_tokens_details":{"cached_tokens":0}},"id":"chatcmpl-kcuG1zMygO9JC2H4kR4NIIt5C8cRVk2y","timings":{"cache_n":0,"prompt_n":40,"prompt_ms":186.978,"prompt_per_token_ms":4.67445,"prompt_per_second":213.9289114227342,"predicted_n":30,"predicted_ms":589.381,"predicted_per_token_ms":20.32348275862069,"predicted_per_second":49.20416504773653}}
+HTTP 200
+
+real	0m1.075s
+user	0m0.046s
+sys	0m0.030s

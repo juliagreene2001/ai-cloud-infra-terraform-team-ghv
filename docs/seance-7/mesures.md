@@ -1,16 +1,20 @@
-# Mesures séance 7 — groupe : ...
+# Mesures séance 7 — groupe : team-ghv
 
-Région attribuée : ... ; rôles pour cette étape (manipulation, mesure, analyse) : ...
+Mesures lancées depuis le poste (Windows, Git Bash), aller-retour réseau médian `/health` : 117 ms ; il s'ajoute au premier token (`raw/step0-rtt.txt` : 227, 103 et 117 ms).
+
+Région attribuée : europe-west4 ; rôles pour cette étape (manipulation, mesure, analyse) : Marouane (manipulation, mesure, analyse), seul à bord : les trois rôles sont tenus par la même personne, sans rotation.
 
 ## Servir (étape 0)
 
 | Mesure | Valeur |
 | --- | --- |
-| Démarrage à froid (première requête, jusqu'à la réponse) | ... s |
-| Requête à chaud (même requête, renvoyée juste après) | ... s |
-| GPU lu dans la console | ... |
-| Instances au maximum lues dans la console | ... |
-| Concurrence lue dans la console | ... |
+| Démarrage à froid (première requête, jusqu'à la réponse) | 215 s (création Terraform ; la première requête mesurée, 1,075 s, était déjà à chaud) |
+| Requête à chaud (même requête, renvoyée juste après) | 1,094 s |
+| GPU lu dans la console | 1 × `nvidia-l4` (`nvidia.com/gpu: '1'`, `run.googleapis.com/accelerator: nvidia-l4`), lu avec `gcloud run services describe` |
+| Instances au maximum lues dans la console | 1 (`autoscaling.knative.dev/maxScale: '1'`) |
+| Concurrence lue dans la console | 16 (`containerConcurrency: 16`) |
+
+Création Terraform : 215 s (3 min 35 s, ligne « google_cloud_run_v2_service.llm: Creation complete after 3m35s » de `raw/step0-apply.txt`). La première requête (1,075 s) est aussi rapide que la seconde (1,094 s) : Cloud Run a démarré l'instance pendant le déploiement et elle répondait encore. Le démarrage à froid est donc la durée de création relevée par Terraform, 215 s, et non la durée de la première requête. Les deux réponses sont `HTTP 200`, avec une phrase dans `choices[0].message.content` (`raw/step0-first.txt`, `raw/step0-warm.txt`, `raw/step0-settings.txt`). Durées lues sur la ligne `real` de `time`, réseau compris.
 
 ## Une requête (étape 1)
 
