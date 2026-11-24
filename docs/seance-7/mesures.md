@@ -39,17 +39,19 @@ Prompt de 200 tokens, réponse de 200 tokens. Colonnes de `load.py`.
 
 | concurrence | prompt (tokens) | sortie (tokens) | premier token médian (ms) | premier token max (ms) | tokens/s par requête | durée totale (s) | débit total (tokens/s) | erreurs |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 4 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 8 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 16 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 32 | 200 | 200 | ... | ... | ... | ... | ... | ... |
+| 1 | 209 | 200 | 208 | 208 | 51,8 | 4,05 | 49,3 | 0 |
+| 4 | 210 | 200 | 665 | 666 | 23,1 | 9,30 | 86,1 | 0 |
+| 8 | 209 | 200 | 1 193 | 1 207 | 25,0 | 9,18 | 174,3 | 0 |
+| 16 | 209 | 200 | 1 642 | 2 253 | 25,5 | 9,51 | 336,4 | 0 |
+| 32 | 209 | 200 | 5 997 | 11 181 | 24,2 | 19,19 | 333,4 | 0 |
 
-Lecture faite pendant le palier à 8 (jamais à 16 : le `curl` serait la 17e requête d'un service à concurrence 16 et attendrait). Créneaux occupés (`/slots`) : ... ; `n_ctx` par créneau lu dans `/slots` : ... tokens ; requêtes en attente (`/metrics`) : ...
+Les cinq paliers ont la même `sortie (tokens)` (200, sans `--ignore-eos`) et `erreurs` = 0 (`raw/step2-c*.txt`). Chaque palier est une seule répétition (`--runs 1`).
 
-Saturation : le débit total ne monte plus à partir de ... requêtes simultanées, à ... tokens/s.
+Lecture faite pendant le palier à 8 (jamais à 16 : le `curl` serait la 17e requête d'un service à concurrence 16 et attendrait), 2 s après le départ de la charge (écart au mode opératoire, qui attend 5 s : par précaution, pour tomber en plein décodage avant la fin du palier, dont la durée n'était pas encore connue). Créneaux occupés (`/slots`) : 8 occupés sur 16 ; `n_ctx` par créneau lu dans `/slots` : 2 048 tokens (32 768 ÷ 16, comme annoncé) ; requêtes en attente (`/metrics`) : `llamacpp:requests_deferred` = 0, `llamacpp:requests_processing` = 8 (`raw/step2-slots.txt`, `raw/step2-metrics.txt`).
 
-Sort des requêtes au-delà de 16 (palier à 32) : ...
+Saturation : règle retenue, écrite ici avant de la lire sur les chiffres : la saturation est le premier palier dont le débit total gagne moins de 10 % sur le palier précédent ; le débit à saturation est le plus haut débit total mesuré. Gains du débit total d'un palier au suivant : 1 à 4 : +75 % (49,3 à 86,1) ; 4 à 8 : +102 % (86,1 à 174,3) ; 8 à 16 : +93 % (174,3 à 336,4) ; 16 à 32 : -0,9 % (336,4 à 333,4). Le premier palier sous 10 % est donc 32 : le débit total ne monte plus au-delà de 16 requêtes simultanées (autant que de créneaux et que la concurrence du service), à 336,4 tokens/s. Débit à saturation (le plus haut mesuré, palier à 16) : 336,4 tokens/s. Le débit par requête, lui, passe de 51,8 tokens/s à 1 requête à 23,1 à 4, puis reste entre 24,2 et 25,5 tokens/s de 8 à 32 : ce n'est pas la capacité du service, la capacité est le débit total.
+
+Sort des requêtes au-delà de 16 (palier à 32) : aucune n'est refusée : 32 réponses `200`, 0 erreur (pas de `429`). Cloud Run les met en file d'attente devant l'instance : les 16 premières sont servies tout de suite (premier token de 1 007 à 2 649 ms, médiane 1 974 ms ; durée de 9,4 à 10,9 s), les 16 autres attendent la fin des premières (premier token de 9 345 à 11 181 ms, médiane 10 640 ms ; durée de 18,1 à 18,9 s, médiane 18,7 s). Le délai d'attente s'ajoute donc au premier token (environ 8,6 s de plus en médiane) sans changer la vitesse de génération de chaque requête (24 à 26 tokens/s) ; la durée du palier double (9,5 s à 16, 19,2 s à 32) pour un débit total inchangé (`raw/step2-c32.txt`).
 
 ## Tracer (étape 4)
 
