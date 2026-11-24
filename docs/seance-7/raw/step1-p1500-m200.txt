@@ -1,0 +1,9 @@
+| concurrence | prompt (tokens) | sortie (tokens) | premier token médian (ms) | premier token max (ms) | tokens/s par requête | durée totale (s) | débit total (tokens/s) | erreurs |
+|---|---|---|---|---|---|---|---|---|
+| 1 | 1490 | 200 | 659 | 673 | 50.4 | 4.61 | 43.4 | 0 |
+
+| requête | statut | premier token (ms) | prompt (tokens) | sortie (tokens) | tokens/s | durée (s) | erreur |
+|---|---|---|---|---|---|---|---|
+| 1 | 200 | 588 | 1491 | 200 | 50.4 | 4.54 | - |
+| 2 | 200 | 659 | 1489 | 200 | 50.4 | 4.61 | - |
+| 3 | 200 | 673 | 1490 | 200 | 50.6 | 4.61 | - |

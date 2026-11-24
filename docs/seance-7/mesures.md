@@ -22,14 +22,16 @@ Médiane de trois mesures par ligne, mesure à froid écartée.
 
 | Prompt (tokens) | Sortie (tokens) | Premier token (ms) | Tokens/s | Durée totale (s) | Contrôle (s) : premier token (ms) ÷ 1 000 + sortie ÷ tokens/s |
 | --- | --- | --- | --- | --- | --- |
-| 200 | 50 | ... | ... | ... | ... |
-| 200 | 200 | ... | ... | ... | ... |
-| 1 500 | 50 | ... | ... | ... | ... |
-| 1 500 | 200 | ... | ... | ... | ... |
+| 208 (demandé : 200) | 50 | 185 | 51,8 | 1,14 | 1,15 |
+| 209 (demandé : 200) | 200 | 214 | 51,5 | 4,09 | 4,10 |
+| 1 490 (demandé : 1 500) | 50 | 639 | 50,2 | 1,62 | 1,64 |
+| 1 490 (demandé : 1 500) | 200 | 659 | 50,4 | 4,61 | 4,63 |
 
-Écart entre la durée mesurée et le contrôle : ... %.
+Les prompts sont comptés par le serveur (écart de 4 % et 0,7 % au demandé). Les quatre lignes ont `erreurs` = 0 et `sortie (tokens)` égal à `--max-tokens` (50 ou 200), sans `--ignore-eos`. Aucun essai n'est plus de deux fois plus lent que les deux autres (`raw/step1-p*-m*.txt`). Une requête de chauffe, non notée, a précédé les mesures. Le premier token inclut l'aller-retour réseau du poste (117 ms médian, voir en tête de fichier).
 
-Conclusion : ce qui allonge le délai avant le premier token : ... ; ce qui allonge la durée totale : ...
+Écart entre la durée mesurée et le contrôle, `(mesurée - contrôle) / mesurée` : -0,9 % (200 / 50), -0,2 % (200 / 200), -0,9 % (1 500 / 50), -0,4 % (1 500 / 200). Le plus grand écart en valeur absolue est 0,93 % (ligne 1 500 / 50 : 1,62 s mesurée contre 1,64 s de contrôle) : la relation durée totale = premier token + sortie ÷ tokens/s tient à moins de 1 %.
+
+Conclusion : ce qui allonge le délai avant le premier token : la longueur du prompt (lecture ou prefill), de 185 ms à 208 tokens à 639 ms à 1 490 tokens, soit environ 454 ms de plus pour 1 282 tokens de prompt en plus, alors que la longueur de la réponse ne change pas le premier token (185 contre 214 ms et 639 contre 659 ms, écarts du bruit de mesure) ; ce qui allonge la durée totale : la longueur de la réponse (décodage), à environ 51 tokens/s quel que soit le prompt : passer de 50 à 200 tokens de sortie ajoute environ 3 s (1,14 à 4,09 s), alors que passer de 208 à 1 490 tokens de prompt n'ajoute que 0,5 s.
 
 ## Plusieurs requêtes (étape 2)
 
