@@ -67,7 +67,7 @@ resource "google_monitoring_alert_policy" "release" {
     condition_threshold {
       # Signal : distribution des scores td6_score, médiane (ALIGN_PERCENTILE_50) par minute, puis le
       # maximum entre séries (REDUCE_MAX), une série par révision de team-ghv-scorer. Une révision dont
-      # l'instantané de features est vide décale ses scores sans échouer : td6_failed ne bouge pas.
+      # l'instantané de features est vide peut décaler ses scores sans échouer : td6_failed ne bouge pas.
       filter = "metric.type=\"logging.googleapis.com/user/td6_score\" AND resource.type=\"cloud_run_revision\" AND resource.label.service_name=\"${var.team}-scorer\""
 
       aggregations {
