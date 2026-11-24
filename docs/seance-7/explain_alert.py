@@ -18,6 +18,16 @@ from pathlib import Path
 import llmclient
 from openai import AuthenticationError, OpenAI, PermissionDeniedError
 
+from opentelemetry import trace
+from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+provider = TracerProvider()
+provider.add_span_processor(BatchSpanProcessor(CloudTraceSpanExporter(project_id="advanced-cloud-ai")))
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer("explain-alert")
+
 PROMPT_VERSION = "explain-v1"
 ACTIONS = ("block", "review", "allow")
 SYSTEM_PROMPT = (
@@ -68,23 +78,32 @@ def validate(text: str) -> dict:
 
 
 def explain(alert_id: str, client: OpenAI, model: str, path: Path) -> dict:
-    t0 = time.perf_counter()
-    context = load_context(alert_id, path)
-    t1 = time.perf_counter()
-    response = client.chat.completions.create(
-        model=model, messages=build_messages(context), max_tokens=200, temperature=0
-    )
-    t2 = time.perf_counter()
-    result = validate(response.choices[0].message.content or "")
-    t3 = time.perf_counter()
-    usage = response.usage
-    tokens_in = usage.prompt_tokens if usage else 0
-    tokens_out = usage.completion_tokens if usage else 0
-    print(
-        f"{alert_id[:12]}  contexte {t1 - t0:.3f} s  modèle {t2 - t1:.2f} s  "
-        f"validation {t3 - t2:.3f} s  tokens {tokens_in} -> {tokens_out}"
-    )
-    return result
+    with tracer.start_as_current_span("explain_alert"):
+        t0 = time.perf_counter()
+        with tracer.start_as_current_span("load_context"):
+            context = load_context(alert_id, path)
+        t1 = time.perf_counter()
+        with tracer.start_as_current_span(f"chat {model}") as span:
+            response = client.chat.completions.create(
+                model=model, messages=build_messages(context), max_tokens=200, temperature=0
+            )
+            span.set_attribute("gen_ai.operation.name", "chat")
+            span.set_attribute("gen_ai.request.model", model)
+            span.set_attribute("gen_ai.usage.input_tokens", response.usage.prompt_tokens)
+            span.set_attribute("gen_ai.usage.output_tokens", response.usage.completion_tokens)
+            span.set_attribute("app.prompt.version", PROMPT_VERSION)
+        t2 = time.perf_counter()
+        with tracer.start_as_current_span("validate_json"):
+            result = validate(response.choices[0].message.content or "")
+        t3 = time.perf_counter()
+        usage = response.usage
+        tokens_in = usage.prompt_tokens if usage else 0
+        tokens_out = usage.completion_tokens if usage else 0
+        print(
+            f"{alert_id[:12]}  contexte {t1 - t0:.3f} s  modèle {t2 - t1:.2f} s  "
+            f"validation {t3 - t2:.3f} s  tokens {tokens_in} -> {tokens_out}"
+        )
+        return result
 
 
 def alert_ids(path: Path, limit: int) -> list[str]:
@@ -119,6 +138,7 @@ def main(argv=None) -> int:
     except (AuthenticationError, PermissionDeniedError):
         print(llmclient.AUTH_MESSAGE, file=sys.stderr)
         return 2
+    provider.shutdown()
     return 0 if failures < args.limit else 1
 
 

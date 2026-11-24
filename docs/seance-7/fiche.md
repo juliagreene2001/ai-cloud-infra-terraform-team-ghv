@@ -4,7 +4,7 @@ Une page. Chaque rubrique cite l'étape dont elle tire ses chiffres.
 
 ## Usage et volume (étapes 3 et 4)
 
-Alertes par jour : ... ; tokens d'entrée par alerte : ... ; tokens de sortie par alerte : ... (mesurés dans une trace, identifiant de la trace : ...).
+Alertes par jour : ... ; tokens d'entrée par alerte : ... ; tokens de sortie par alerte : ... (mesurés dans une trace, identifiant de la trace : f17f1c1064187f0ca327c510c54018e9).
 
 ## Modèle et précision (étape 5)
 

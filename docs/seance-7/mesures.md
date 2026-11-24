@@ -57,11 +57,15 @@ Sort des requêtes au-delà de 16 (palier à 32) : aucune n'est refusée : 32 r�
 
 | Étape du span | Durée (ms) | Tokens d'entrée | Tokens de sortie |
 | --- | --- | --- | --- |
-| `load_context` | ... | - | - |
-| `chat <modèle>` | ... | ... | ... |
-| `validate_json` | ... | - | - |
+| `load_context` | < 1 (0 à 2,5 ms) | - | - |
+| `chat qwen2.5-7b-instruct-q4_k_m` | 1 492 (977 à 1 592) | 576 (572 à 584) | 67 (45 à 77) |
+| `validate_json` | < 1 (0 ms) | - | - |
 
-Étape la plus lente : ...
+Médiane des cinq alertes (cinq traces `explain_alert`, projet `advanced-cloud-ai`, relues par l'API Cloud Trace : `raw/step4-traces.json` ; sorties du script avant et après instrumentation : `raw/step4-before.txt`, `raw/step4-after.txt`). Chaque trace contient `explain_alert` et ses trois spans enfants, et le span `chat ...` porte les cinq attributs (`gen_ai.operation.name`, `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, `app.prompt.version` = `explain-v1`). Durée de `explain_alert` : 979 à 1 596 ms, médiane 1 492 ms. L'horloge de Windows a une résolution grossière : `load_context` et `validate_json` apparaissent à 0 ms (jusqu'à 2,5 ms), alors que le script imprime 0,001 s pour les deux. Trace retenue pour la capture : `f17f1c1064187f0ca327c510c54018e9` (572 tokens en entrée, 67 en sortie, 1 492 ms).
+
+Étape la plus lente : `chat qwen2.5-7b-instruct-q4_k_m`, l'appel au modèle : il occupe plus de 99,7 % de la durée de `explain_alert` dans chacune des cinq traces (977 à 1 592 ms sur 979 à 1 596 ms), contre moins de 3 ms pour les deux autres étapes réunies.
+
+Tokens réellement mesurés : 576 en entrée et 67 en sortie en médiane, contre 800 et 150 supposés dans l'énoncé.
 
 Coût d'une alerte, à partir de ses tokens : ... $ (hypothèse de l'étape 3 : 800 tokens en entrée et 150 en sortie ; corrigée en : ...).
 
