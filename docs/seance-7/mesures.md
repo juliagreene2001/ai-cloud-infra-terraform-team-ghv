@@ -67,10 +67,12 @@ Coût d'une alerte, à partir de ses tokens : ... $ (hypothèse de l'étape 3 : 
 
 ## Juger un candidat (étape 5)
 
-Règle écrite avant de lancer le jeu d'évaluation, à ... h ... :
+Règle écrite avant de lancer le jeu d'évaluation, à 23 h 54 (heure de la machine, `date '+%H:%M'`, le 24 novembre 2026) :
 
-- gain de score minimal exigé : ... point(s)
-- perte de débit tolérée : ... %
+- gain de score minimal exigé : 5 points (on passe en 8 bits seulement si score 8 bits - score 4 bits >= 5 points de score global)
+- perte de débit tolérée : 30 % (on tolère au plus 30 % de perte : 1 - débit 8 bits ÷ débit 4 bits <= 30 %)
+
+Origine de la règle : c'est la règle par défaut proposée par le plan de la séance (gain >= 5 points, perte <= 30 %). Elle a été adoptée en début de session, avant toute mesure du jeu d'évaluation, et consignée ici avant le premier lancement de `eval.py` ; l'horodatage de ce fichier et le commit « docs: TD7 step 5 rule written before evaluation » en font foi. Aucun score n'avait été lu à ce moment : seuls les débits des étapes 1 et 2 étaient mesurés. Le débit à saturation du 4 bits (étape 2) vaut 336,4 tokens/s ; la règle porte sur les deux colonnes du tableau (score et débit), pas sur la mémoire.
 
 | Modèle | Score (champs correctement extraits) | Débit (tokens/s) | Mémoire |
 | --- | --- | --- | --- |
