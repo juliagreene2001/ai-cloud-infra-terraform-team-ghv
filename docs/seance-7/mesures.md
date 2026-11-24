@@ -67,7 +67,9 @@ Médiane des cinq alertes (cinq traces `explain_alert`, projet `advanced-cloud-a
 
 Tokens réellement mesurés : 576 en entrée et 67 en sortie en médiane, contre 800 et 150 supposés dans l'énoncé.
 
-Coût d'une alerte, à partir de ses tokens : ... $ (hypothèse de l'étape 3 : 800 tokens en entrée et 150 en sortie ; corrigée en : ...).
+Coût d'une alerte, à partir de ses tokens : 0,000340 $ (576 × 0,30 + 67 × 2,50, par million de tokens, prix de l'API de `cout.md`) (hypothèse de l'étape 3 : 800 tokens en entrée et 150 en sortie, soit 0,000615 $ ; corrigée en : 576 en entrée et 67 en sortie).
+
+Ce que la correction change aux nombres de l'étape 3 : le coût par jour de l'API passe de 53,64 $ à 29,68 $ ; celui du GPU reste à 25,12 $ ; le volume de bascule monte de 40 840 à 73 807 alertes par jour ; le débit de sortie requis tombe de 151,4 à 67,6 tokens/s. Le GPU reste moins cher, mais de 4,56 $ par jour (15 %) au lieu de 28,52 $ : voir la section « Correction avec les tokens mesurés » de `cout.md` (`raw/step4-calc.txt`).
 
 ## Juger un candidat (étape 5)
 

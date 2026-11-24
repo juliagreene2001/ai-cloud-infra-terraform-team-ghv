@@ -1,0 +1,14 @@
+api_alert = 0.000340
+api_day = 29.679605
+gpu_day = 25.116480
+ecart_jour = 4.563125
+ecart_relatif_pct = 15.374614
+switch = 73806.876286
+switch_vs_volume = 1.181679
+required_tps = 67.632778
+occ_sortie = 0.201049
+gpu_per_M_out_occ = 4.298212
+sec_per_alert = 0.399446
+cap_alertes_jour = 216299.671478
+occ_avec_prefill = 0.403218
+api_day_regional(+10%) = 32.647565
