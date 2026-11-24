@@ -112,3 +112,31 @@ def test_rejects_session3_resources_named_for_another_team(kind, values):
     change = session3_change(kind, other_names | {"project": "advanced-cloud-ai"})
     with pytest.raises(ValueError, match="Unexpected"):
         RUNNER.check_plan({"resource_changes": [change]})
+
+
+def alert_change(display_name="team-ghv-scorer-release", project="advanced-cloud-ai"):
+    return {
+        "mode": "managed",
+        "type": "google_monitoring_alert_policy",
+        "change": {
+            "actions": ["create"],
+            "after": {"display_name": display_name, "project": project},
+        },
+    }
+
+
+def test_allows_ghv_release_alert_policy():
+    RUNNER.check_plan({"resource_changes": [alert_change()]})
+
+
+def test_rejects_alert_policy_named_for_another_team():
+    with pytest.raises(ValueError, match="Unexpected alert policy"):
+        RUNNER.check_plan({"resource_changes": [alert_change("team3-scorer-release")]})
+
+
+def test_allows_ghv_shadow_subscription_in_the_course_project():
+    change = session3_change(
+        "google_pubsub_subscription",
+        {"name": "team-ghv-shadow", "project": "advanced-cloud-ai"},
+    )
+    RUNNER.check_plan({"resource_changes": [change]})
