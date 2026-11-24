@@ -12,7 +12,7 @@ Prix relevés le 24 novembre 2026 (Relevé : lus sur les deux pages de tarifs, e
 | Prix d'entrée de l'API (modèle gemini-3.5-flash-lite) | 0,30 $ par million de tokens | [Tarifs de Vertex AI](https://cloud.google.com/vertex-ai/generative-ai/pricing), onglet « Standard », famille « Gemini 3 », ligne « Gemini 3.5 Flash-Lite », entrée texte, image, vidéo, audio, endpoint global, au plus 200 K tokens d'entrée, relu le 24 novembre 2026 |
 | Prix de sortie de l'API | 2,50 $ par million de tokens | Même page, même ligne, « Text output (response and reasoning) », endpoint global, au plus 200 K tokens d'entrée, relu le 24 novembre 2026 |
 
-Choix à confirmer en équipe : l'endpoint retenu est l'endpoint global, qui est la première ligne de chaque modèle. L'endpoint non global (régional) est facturé 10 % plus cher sur la même page : 0,33 $ en entrée et 2,75 $ en sortie par million de tokens. La page n'affiche pas de date de mise à jour : la date retenue est celle de la lecture.
+Choix confirmé par l'équipe le 25 novembre 2026 : l'endpoint retenu est l'endpoint global, qui est la première ligne de chaque modèle. L'endpoint non global (régional) est facturé 10 % plus cher sur la même page : 0,33 $ en entrée et 2,75 $ en sortie par million de tokens. La page n'affiche pas de date de mise à jour : la date retenue est celle de la lecture.
 
 ### Prix horaire du GPU
 
@@ -74,7 +74,7 @@ débit moyen nécessaire     = alertes × tokens de sortie ÷ 86 400
 | Coût API d'une alerte (formule de la ligne « volume de bascule ») | 0,000615 $ (800 × 0,30 + 150 × 2,50, par million de tokens) |
 | Coût GPU par million de tokens de sortie, à comparer au prix de sortie de l'API (mêmes unités : $ par million de tokens) | 0,86 $ contre 2,50 $ (à 100 % d'occupation ; 1,92 $ au taux d'occupation moyen de 45 % calculé plus bas) |
 
-Hypothèses de ces nombres : prix de l'API de l'endpoint global (à confirmer en équipe, voir plus haut), 800 et 150 tokens par alerte (hypothèse du cours, corrigée avec la trace de l'étape 4 plus bas), débit mesuré avec des prompts de 200 tokens, mesures lancées depuis le poste de travail.
+Hypothèses de ces nombres : prix de l'API de l'endpoint global (choix confirmé, voir plus haut), 800 et 150 tokens par alerte (hypothèse du cours, corrigée avec la trace de l'étape 4 plus bas), débit mesuré avec des prompts de 200 tokens, mesures lancées depuis le poste de travail.
 
 ## Vérification de capacité
 
