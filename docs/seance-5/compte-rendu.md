@@ -109,3 +109,7 @@ The decision file is `gs://advanced-cloud-ai-models/runs/team-ghv/decisions/2026
 5. Le modèle entre-t-il au registre, et sur quelle base ?
 6. Démonstration DDP : qu'apporte le second processus, et pourquoi ? Une réponse par étudiant, signée
    de son prénom.
+
+### Réponse à la question 6 — DDP
+
+En DDP, chaque processus garde une copie complète du modèle (poids, gradients et état de l'optimiseur) et traite une part différente de chaque lot grâce au `DistributedSampler`. Après la rétropropagation, les gradients sont moyennés entre les processus par un *all-reduce*, puis chaque processus applique la même mise à jour, si bien que les copies restent identiques. Le second processus apporte donc surtout du débit : deux fois plus d'exemples traités par pas, pour une AP de validation équivalente. Le débit ne double pas pour autant : à chaque pas, les processus doivent échanger et moyenner leurs gradients et attendre le plus lent, ils se partagent les mêmes cœurs et la même bande passante mémoire sur CPU, et une partie du travail (démarrage, chargement des données, évaluation) n'est pas parallélisée ; sur un petit réseau, le temps de communication pèse lourd face au calcul. FSDP ou ZeRO s'imposent quand les poids, les gradients et l'état de l'optimiseur ne tiennent plus dans la mémoire d'un seul appareil : ils répartissent ces états entre les processus au lieu de les copier, au prix de plus de communications. Les débits et l'AP de la démonstration n'ont pas été relevés pendant la séance. — Marouane
