@@ -18,7 +18,7 @@ Terraform configuration for `team-ghv-fraud-api` in project `advanced-cloud-ai`,
 
 ## Project status (updated 25 November 2026)
 
-Branch `marouane-s4` is `origin/Ali` (last commit `6e54a20`, 23 November 2026) plus local commits that are not pushed yet.
+`main` includes `Ali` (up to `6e54a20`, 23 November 2026) and the end-of-project work from `marouane-s4` (TD6 after-class Terraform, TD7 and the TD4 analysis), merged on 25 November 2026. The companion API repository's `main` includes the `/pubsub` endpoint used by `infra/pubsub.tf`.
 
 | Lab | Status | Still to finish before the end of the project |
 | --- | --- | --- |
