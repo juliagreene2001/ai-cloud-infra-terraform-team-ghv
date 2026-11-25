@@ -694,13 +694,13 @@ source-comparison measurements are still pending.
 
 ## Final source choice and completion status
 
-No final source recommendation is justified by the currently recorded comparison:
-Parquet has a recovered log sample, while all three sources each have one
-reference prediction with individual request timings. BigQuery and Firestore
-reference scores match exactly. October 1 customer and terminal checkpoints and
-the rebuilt tables' September comparison now pass. Complete the missing replay
-timings and source-freshness/throughput checks before writing the teacher's
-two-sentence final choice.
+The final choice is stated in the last two sentences of this report. It rests on
+one reference prediction per source with individual request timings (Parquet also
+has a recovered log sample); BigQuery and Firestore reference scores match
+exactly, and the October 1 checkpoints and the rebuilt tables' September
+comparison pass. The replay p50/p99, throughput and freshness checks are still
+missing because they need the instructor's stream, so the choice is provisional
+on that evidence.
 
 - [x] Record the Step 0 seed query and bytes processed.
 - [x] Verify Part A ingestion and the distinct-transaction checkpoint.
@@ -760,3 +760,7 @@ queries used explicit project/location and, for new queries, a 1 GiB billing cap
 
 Technical references: [BigQuery partition pruning](https://docs.cloud.google.com/bigquery/docs/querying-partitioned-tables),
 [Pub/Sub duplicate message IDs](https://docs.cloud.google.com/pubsub/docs/pull-troubleshooting#dealing_with_duplicates).
+
+## Source chosen for live scoring
+
+For live scoring we choose Firestore: on the reference transaction it read the counters in 132.31 ms against 2,569.37 ms for BigQuery and returned exactly the same score, whereas Parquet (1.71 ms) is frozen at September 30 and missed the October history. Firestore is only as fresh as its last publication, which suits counters rebuilt daily through D-1 if one scheduled daily job rebuilds the two tables and then runs `publish_features.py`, and this choice rests on single-request timings, not yet on replay p50/p99.
