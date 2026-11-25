@@ -1,0 +1,274 @@
+{
+  "traces": [
+    {
+      "projectId": "advanced-cloud-ai",
+      "traceId": "61bf5d88ebdf93e3a36283cb80944e81",
+      "spans": [
+        {
+          "spanId": "4714007270917094071",
+          "name": "explain_alert",
+          "startTime": "2026-11-24T22:57:15.234486200Z",
+          "endTime": "2026-11-24T22:57:16.330749Z",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0"
+          }
+        },
+        {
+          "spanId": "12594593425698965802",
+          "name": "chat qwen2.5-7b-instruct-q4_k_m",
+          "startTime": "2026-11-24T22:57:15.234486200Z",
+          "endTime": "2026-11-24T22:57:16.330749Z",
+          "parentSpanId": "4714007270917094071",
+          "labels": {
+            "app.prompt.version": "explain-v1",
+            "gen_ai.usage.output_tokens": "53",
+            "gen_ai.usage.input_tokens": "581",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gen_ai.request.model": "qwen2.5-7b-instruct-q4_k_m",
+            "gen_ai.operation.name": "chat",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "3381833468748041662",
+          "name": "load_context",
+          "startTime": "2026-11-24T22:57:15.234486200Z",
+          "endTime": "2026-11-24T22:57:15.234486200Z",
+          "parentSpanId": "4714007270917094071",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "12811327658640079511",
+          "name": "validate_json",
+          "startTime": "2026-11-24T22:57:16.330749Z",
+          "endTime": "2026-11-24T22:57:16.330749Z",
+          "parentSpanId": "4714007270917094071",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        }
+      ]
+    },
+    {
+      "projectId": "advanced-cloud-ai",
+      "traceId": "8599ee7d28f0be1e89c24339df7a4b0a",
+      "spans": [
+        {
+          "spanId": "16026200551606391033",
+          "name": "explain_alert",
+          "startTime": "2026-11-24T22:57:13.638444900Z",
+          "endTime": "2026-11-24T22:57:15.234486200Z",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "7861324062646240057",
+          "name": "load_context",
+          "startTime": "2026-11-24T22:57:13.638444900Z",
+          "endTime": "2026-11-24T22:57:13.640467400Z",
+          "parentSpanId": "16026200551606391033",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0"
+          }
+        },
+        {
+          "spanId": "6230936301835135741",
+          "name": "chat qwen2.5-7b-instruct-q4_k_m",
+          "startTime": "2026-11-24T22:57:13.640467400Z",
+          "endTime": "2026-11-24T22:57:15.232746900Z",
+          "parentSpanId": "16026200551606391033",
+          "labels": {
+            "gen_ai.request.model": "qwen2.5-7b-instruct-q4_k_m",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai",
+            "gen_ai.usage.output_tokens": "77",
+            "gen_ai.usage.input_tokens": "572",
+            "app.prompt.version": "explain-v1",
+            "gen_ai.operation.name": "chat"
+          }
+        },
+        {
+          "spanId": "1803240541063889666",
+          "name": "validate_json",
+          "startTime": "2026-11-24T22:57:15.234486200Z",
+          "endTime": "2026-11-24T22:57:15.234486200Z",
+          "parentSpanId": "16026200551606391033",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        }
+      ]
+    },
+    {
+      "projectId": "advanced-cloud-ai",
+      "traceId": "8747d3409dfb663ff4d83dc2c88931c7",
+      "spans": [
+        {
+          "spanId": "8656738482093794612",
+          "name": "explain_alert",
+          "startTime": "2026-11-24T22:57:17.894076600Z",
+          "endTime": "2026-11-24T22:57:18.873466700Z",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "3731892527823857573",
+          "name": "load_context",
+          "startTime": "2026-11-24T22:57:17.894076600Z",
+          "endTime": "2026-11-24T22:57:17.894076600Z",
+          "parentSpanId": "8656738482093794612",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0"
+          }
+        },
+        {
+          "spanId": "15618507904295238941",
+          "name": "chat qwen2.5-7b-instruct-q4_k_m",
+          "startTime": "2026-11-24T22:57:17.896198600Z",
+          "endTime": "2026-11-24T22:57:18.873466700Z",
+          "parentSpanId": "8656738482093794612",
+          "labels": {
+            "gen_ai.operation.name": "chat",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gen_ai.usage.output_tokens": "45",
+            "app.prompt.version": "explain-v1",
+            "gen_ai.usage.input_tokens": "576",
+            "gcp.project_id": "advanced-cloud-ai",
+            "gen_ai.request.model": "qwen2.5-7b-instruct-q4_k_m"
+          }
+        },
+        {
+          "spanId": "1201588373023725129",
+          "name": "validate_json",
+          "startTime": "2026-11-24T22:57:18.873466700Z",
+          "endTime": "2026-11-24T22:57:18.873466700Z",
+          "parentSpanId": "8656738482093794612",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0"
+          }
+        }
+      ]
+    },
+    {
+      "projectId": "advanced-cloud-ai",
+      "traceId": "b692a4208d8244750a07a65015c5fba9",
+      "spans": [
+        {
+          "spanId": "14481795636908553384",
+          "name": "explain_alert",
+          "startTime": "2026-11-24T22:57:16.330749Z",
+          "endTime": "2026-11-24T22:57:17.894076600Z",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0"
+          }
+        },
+        {
+          "spanId": "12496288611065234582",
+          "name": "load_context",
+          "startTime": "2026-11-24T22:57:16.330749Z",
+          "endTime": "2026-11-24T22:57:16.333292Z",
+          "parentSpanId": "14481795636908553384",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "3139113662302644832",
+          "name": "chat qwen2.5-7b-instruct-q4_k_m",
+          "startTime": "2026-11-24T22:57:16.333292Z",
+          "endTime": "2026-11-24T22:57:17.894076600Z",
+          "parentSpanId": "14481795636908553384",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "gen_ai.usage.output_tokens": "75",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gen_ai.request.model": "qwen2.5-7b-instruct-q4_k_m",
+            "gen_ai.operation.name": "chat",
+            "gen_ai.usage.input_tokens": "584",
+            "app.prompt.version": "explain-v1"
+          }
+        },
+        {
+          "spanId": "15021022625250578553",
+          "name": "validate_json",
+          "startTime": "2026-11-24T22:57:17.894076600Z",
+          "endTime": "2026-11-24T22:57:17.894076600Z",
+          "parentSpanId": "14481795636908553384",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        }
+      ]
+    },
+    {
+      "projectId": "advanced-cloud-ai",
+      "traceId": "f17f1c1064187f0ca327c510c54018e9",
+      "spans": [
+        {
+          "spanId": "16146443216230695639",
+          "name": "explain_alert",
+          "startTime": "2026-11-24T22:57:12.146353200Z",
+          "endTime": "2026-11-24T22:57:13.638444900Z",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "13495427555727208906",
+          "name": "load_context",
+          "startTime": "2026-11-24T22:57:12.146353200Z",
+          "endTime": "2026-11-24T22:57:12.146353200Z",
+          "parentSpanId": "16146443216230695639",
+          "labels": {
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "gcp.project_id": "advanced-cloud-ai"
+          }
+        },
+        {
+          "spanId": "12246089397592476830",
+          "name": "chat qwen2.5-7b-instruct-q4_k_m",
+          "startTime": "2026-11-24T22:57:12.146353200Z",
+          "endTime": "2026-11-24T22:57:13.638444900Z",
+          "parentSpanId": "16146443216230695639",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "gen_ai.operation.name": "chat",
+            "gen_ai.usage.input_tokens": "572",
+            "gen_ai.usage.output_tokens": "67",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0",
+            "app.prompt.version": "explain-v1",
+            "gen_ai.request.model": "qwen2.5-7b-instruct-q4_k_m"
+          }
+        },
+        {
+          "spanId": "8041039085025306938",
+          "name": "validate_json",
+          "startTime": "2026-11-24T22:57:13.638444900Z",
+          "endTime": "2026-11-24T22:57:13.638444900Z",
+          "parentSpanId": "16146443216230695639",
+          "labels": {
+            "gcp.project_id": "advanced-cloud-ai",
+            "g.co/agent": "opentelemetry-python 1.45.2; google-cloud-trace-exporter 1.15.0"
+          }
+        }
+      ]
+    }
+  ]
+}

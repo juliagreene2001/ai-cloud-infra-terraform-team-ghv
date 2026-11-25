@@ -145,3 +145,24 @@ Traffic:
 1. Le premier écart attesté pour `next` est `snapshot_rows=0` dans `/health`, lors du déploiement à 0 %. Les quatre signaux en trafic n’ont pas été mesurés pour cette révision après la fin du rejeu.
 2. Un contrôle qui exige un snapshot non vide aurait bloqué cette livraison dès le déploiement à 0 %. Le contrôle limité à `status: ok` a laissé passer le snapshot vide, comme le montre la réponse de `/health`.
 3. `next` est restée à 0 % dans le déploiement observé. Sans passage à 10 % ni relevé de transactions de cette révision sur le flux, il manque une base pour estimer un volume affecté à 100 %.
+
+## Extension — Dérive
+
+Requête de l'extension « Dérive » du TD6, lancée telle quelle sur `fraudfinder.tx_seed` (emplacement `europe-west1`, `--maximum_bytes_billed=1073741824`). Sortie brute : [derive.json](derive.json). Octets facturés : 59 768 832 (environ 57 Mio, pour un plafond de 1 Gio). Les deux semaines sont celles du 10 au 16 septembre et du 24 au 30 septembre 2026. Les centiles du montant viennent de `APPROX_QUANTILES`, ils sont approchés.
+
+| Grandeur | 10–16 sept | 24–30 sept | Écart absolu | Écart relatif |
+| --- | --- | --- | --- | --- |
+| Montant médian | 52,38 | 52,36 | −0,02 | −0,04 % |
+| Montant au 95ᵉ centile | 98,51 | 98,47 | −0,04 | −0,04 % |
+| Transactions par client actif et par jour | 2,6645 | 2,6687 | +0,0042 | +0,16 % |
+| Taux de fraude | 0,901 % | 1,236 % | +0,335 point | +37,2 % |
+
+Décision : **ne pas réentraîner maintenant.** Les trois mesures d'entrée (montant médian, montant au 95ᵉ centile, activité des clients) bougent de moins de 0,2 % : rien n'indique que les données que le service lit ont changé. Seul le taux de fraude monte, de 0,90 % à 1,24 %. Ce taux dépend des labels, et ceux de la semaine la plus récente arrivent avec retard : le compte rendu du TD4 note un délai de sept jours entre la transaction et son label (`docs/seance-4/compte-rendu.md`, partie B, explication 3). Sur la semaine du 24 au 30 septembre, une partie des fraudes n'était donc peut-être pas encore étiquetée à la date de la table. Je n'ai pas vérifié cette date. Le taux de cette semaine est incomplet, et sa hausse de 37,2 % ne suffit pas à décider. À refaire sur des semaines dont les labels ont plus de sept jours, avec la précision moyenne du modèle sur ces labels.
+
+## Extension — Politique de réentraînement
+
+- Politique retenue : réentraînement sur dérive des entrées (montant médian, montant au 95ᵉ centile, transactions par client et par jour), mesurée chaque semaine sans attendre de label.
+- Raison : les labels de fraude arrivent sept jours après la transaction (`docs/seance-4/compte-rendu.md`, partie B, explication 3), donc un réentraînement sur résultats verrait une dégradation au moins une semaine trop tard.
+- Constat de l'extension « Dérive » : entrées stables (−0,04 %, −0,04 % et +0,16 %), seul le taux de fraude monte (+37,2 %), sur la semaine aux labels les moins mûrs : pas de réentraînement maintenant.
+- Déclencheur proposé, à valider par l'équipe : plus de 10 % d'écart relatif sur l'une des trois mesures deux semaines de suite ; le taux de fraude et la précision moyenne ne se lisent que sur les semaines de plus de sept jours, pour confirmer, jamais pour déclencher.
+- Pourquoi pas le calendrier : il réentraînerait à vide tant que les écarts restent sous 0,2 %, et chaque nouveau modèle repasse par la validation, les paliers et le retour arrière de la séance 6 avant de recevoir du trafic.

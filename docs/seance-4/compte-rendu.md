@@ -382,6 +382,50 @@ latency/freshness trade-off and who would schedule future refreshes. The teacher
 is unavailable for the replay at the latest user availability check. All three
 reference scores and the BigQuery/Firestore equality checkpoint are complete.
 
+### Analyse sans rejeu
+
+This analysis uses only the single-request timings and checkpoints recorded
+above. It does not replace the replay measurements (p50/p99, backlog and
+throughput), which need the stream: the replay checkbox in the completion
+status below stays unchecked.
+
+| Source | Features (ms) | Handler (ms) | What the lookup can see |
+| --- | ---: | ---: | --- |
+| `parquet` | 1.71 | 31.10 | Snapshot with `last_day` 2026-09-30, so no October 1 transactions. Reference score 0.00010230999760096893. |
+| `firestore` | 132.31 | 172.94 | Copy written by `publish_features.py`; it holds what the last publication wrote. Reference score 0.00019268736650701612. |
+| `bigquery` | 2,569.37 | 2,602.86 | Team dataset `advanced-cloud-ai.team_ghv`, which contains the October 1 history. Reference score 0.00019268736650701612. |
+
+**Latency versus freshness.** BigQuery reads the team dataset directly, so a
+rebuilt aggregate is visible as soon as it exists, but one request spent about
+2.57 s on features against 132.31 ms for Firestore. Firestore is much faster
+because it serves a copy, and a copy is only as recent as its last
+publication: the publisher selects a 28-day window relative to each source
+table's latest `day`, and the file records one publication and no later
+refresh. Parquet is the fastest (1.71 ms), but its September 30
+cutoff is visible in its different score (0.00010230999760096893 against
+0.00019268736650701612 for the other two). The identical BigQuery and Firestore
+scores show that the copy was fresh enough for this transaction when it was
+published; they do not show that it stays so. The file does not break down where
+the 2.57 s goes, so no cause is attributed to it.
+
+**Who schedules Firestore refreshes, and how often.** The counters are daily
+aggregates and a lookup on day D reads through D-1, so feature values change when
+a day's aggregates are rebuilt, not between transactions. Publishing more often
+than the aggregates are rebuilt would write the same documents again. Fraud
+counters cannot be fresher than the seven-day label delay either. This is a
+proposal, not something measured or implemented: the team owns one scheduled
+daily job, not the scoring service (which only reads) and not the instructor. It
+rebuilds the two aggregate tables from `infra/sql/`, then runs
+`publish_features.py`, once the day's history is complete; the order matters
+because the publisher reads the rebuilt tables. The publisher's reported
+elapsed times (118 s for customers, 15 s for terminals, approximately 133 seconds
+in total) are short for a daily schedule, so duration does not constrain it.
+
+**Not established.** The freshness of the Firestore copy, latency percentiles,
+BigQuery-source backlog and throughput under replay, and the monetary cost of
+each source. This analysis therefore gives no final source choice; the
+"Final source choice" section below still applies.
+
 ## Part D — Vector search measurements
 
 Both index builds, both complete benchmark tables, parameter selection,
@@ -684,6 +728,28 @@ two-sentence final choice.
 - [x] Identify the three other clients reusing document 87's payslip and distinguish the two remaining candidates.
 - [x] Record Part D's scaling/restart, exact-search growth, recall interpretation and embedding-model-change explanations, with evidence limits.
 - [ ] Record agreed cleanup after the exercise; no cleanup performed by this task.
+  Read-only inventory of 24 November 2026, project `advanced-cloud-ai`, nothing
+  deleted. TD4 resources of team-ghv: Firestore database `team-ghv`
+  (`FIRESTORE_NATIVE`, `europe-west1`; the databases `team-really-cool`, `team0`,
+  `team1` and `team3` belong to other teams); BigQuery dataset `team_ghv` with the
+  tables `tx_history` (Terraform label, partitioned by day on `TX_TS`),
+  `customer_daily` and `terminal_daily`; Pub/Sub subscription
+  `team-ghv-tx-history` (BigQuery subscription on the shared topic `ff-replay`);
+  Cloud Run service `team-ghv-vectors` in `europe-west1` (Qdrant `v1.12.4`, 1 CPU,
+  2 GiB, minimum and maximum one instance, CPU always allocated, so it is billed
+  while it exists; the collection is lost if the instance is replaced).
+  Listed by the same filter but not TD4: subscriptions `team-ghv-tx-push`,
+  `team-ghv-tx-dead-pull`, `team-ghv-live-push` and `team-ghv-live-dead-pull`,
+  topics `team-ghv-tx-dead` and `team-ghv-live-dead`, and the Cloud Run services
+  `team-ghv-fraud-api` and `team-ghv-scorer`, which belong to the scoring service
+  and the TD6 flow. Out of scope, never to delete: the shared topics `ff-replay`
+  and `ff-td6` and every dataset or service without the `team-ghv` name.
+  **Nettoyage à décider en équipe**: the Firestore database, the BigQuery tables
+  and the history subscription are the inputs of the Part C replay measurements
+  still pending, so deleting them before the team decides would block that work;
+  the vectors service is the item with an always-on instance, and its Part D
+  results are already recorded. Each deletion needs a team decision and, for
+  Terraform-managed resources, a reviewed plan.
 - [ ] Complete the outstanding Part C measurements and obtain team review before merging into `main`.
 
 Evidence basis: teacher handout [seance-4.md](../seance-4.md), supplied replay

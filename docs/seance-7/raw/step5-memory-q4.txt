@@ -1,0 +1,7 @@
+| appareil | poids (Gio) | cache KV (Gio) | calcul (Gio) | total (Gio) |
+| --- | --- | --- | --- | --- |
+| CPU_Mapped | 0,29 | 0,00 | 0,00 | 0,29 |
+| CUDA0 | 4,07 | 1,75 | 0,14 | 5,96 |
+| CUDA_Host | 0,00 | 0,00 | 0,03 | 0,03 |
+
+Total GPU (CUDA, hors CUDA_Host) : 5,96 Gio

@@ -1,0 +1,6 @@
+{"choices":[{"finish_reason":"stop","index":0,"message":{"role":"assistant","content":"A fraud alert is a notification to credit reporting agencies indicating that you may be a target of identity theft, which can prompt creditors to take extra steps to verify your identity before extending credit."}}],"created":1795560632,"model":"qwen2.5-7b-instruct-q4_k_m","system_fingerprint":"b12169-3ed7284f2","object":"chat.completion","usage":{"completion_tokens":38,"prompt_tokens":40,"total_tokens":78,"prompt_tokens_details":{"cached_tokens":39}},"id":"chatcmpl-DCwilIQQoR1WO4Lx5fbtdrOK2Nbshf3l","timings":{"cache_n":39,"prompt_n":1,"prompt_ms":19.129,"prompt_per_token_ms":19.129,"prompt_per_second":52.27664802132887,"predicted_n":38,"predicted_ms":710.148,"predicted_per_token_ms":19.19318918918919,"predicted_per_second":52.101815396227266}}
+HTTP 200
+
+real	0m1.094s
+user	0m0.015s
+sys	0m0.062s

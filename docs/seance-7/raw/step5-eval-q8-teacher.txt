@@ -1,0 +1,30 @@
+score global : 87,0 % des champs corrects (20 documents, 5 champs, prompt kyc-extract-v1)
+
+| champ | justesse |
+|---|---|
+| doc_type | 90,0 % |
+| name | 100,0 % |
+| address | 100,0 % |
+| date | 100,0 % |
+| amount | 45,0 % |
+
+JSON invalides : 0
+durée totale : 65.1 s
+tokens : 6125 en entrée, 1277 en sortie
+
+écarts :
+| document | champ | attendu | obtenu |
+|---|---|---|---|
+| kyc-03 | amount | 802.87 | strconv(802.87) |
+| kyc-04 | amount | 1300.75 | None |
+| kyc-05 | amount | 342.15 | strconv(342.15) |
+| kyc-06 | doc_type | rib | releve_bancaire |
+| kyc-07 | amount | 431.89 | strconv(431.89) |
+| kyc-09 | amount | 1658.49 | None |
+| kyc-10 | amount | 713.78 | None |
+| kyc-11 | amount | 1758.27 | None |
+| kyc-12 | amount | 695.31 | strconv(695.31) |
+| kyc-14 | amount | 2360.42 | strconv(2360.42) |
+| kyc-18 | amount | 1699.59 | None |
+| kyc-19 | doc_type | rib | releve_bancaire |
+| kyc-20 | amount | 1493.62 | None |

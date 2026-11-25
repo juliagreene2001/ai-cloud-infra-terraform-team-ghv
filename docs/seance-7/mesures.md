@@ -1,16 +1,20 @@
-# Mesures séance 7 — groupe : ...
+# Mesures séance 7 — groupe : team-ghv
 
-Région attribuée : ... ; rôles pour cette étape (manipulation, mesure, analyse) : ...
+Mesures lancées depuis le poste (Windows, Git Bash), aller-retour réseau médian `/health` : 117 ms ; il s'ajoute au premier token (`raw/step0-rtt.txt` : 227, 103 et 117 ms).
+
+Région attribuée : europe-west4 ; rôles pour cette étape (manipulation, mesure, analyse) : Marouane (manipulation, mesure, analyse), seul à bord : les trois rôles sont tenus par la même personne, sans rotation.
 
 ## Servir (étape 0)
 
 | Mesure | Valeur |
 | --- | --- |
-| Démarrage à froid (première requête, jusqu'à la réponse) | ... s |
-| Requête à chaud (même requête, renvoyée juste après) | ... s |
-| GPU lu dans la console | ... |
-| Instances au maximum lues dans la console | ... |
-| Concurrence lue dans la console | ... |
+| Démarrage à froid (première requête, jusqu'à la réponse) | 215 s (création Terraform ; la première requête mesurée, 1,075 s, était déjà à chaud) |
+| Requête à chaud (même requête, renvoyée juste après) | 1,094 s |
+| GPU lu dans la console | 1 × `nvidia-l4` (`nvidia.com/gpu: '1'`, `run.googleapis.com/accelerator: nvidia-l4`), lu avec `gcloud run services describe` |
+| Instances au maximum lues dans la console | 1 (`autoscaling.knative.dev/maxScale: '1'`) |
+| Concurrence lue dans la console | 16 (`containerConcurrency: 16`) |
+
+Création Terraform : 215 s (3 min 35 s, ligne « google_cloud_run_v2_service.llm: Creation complete after 3m35s » de `raw/step0-apply.txt`). La première requête (1,075 s) est aussi rapide que la seconde (1,094 s) : Cloud Run a démarré l'instance pendant le déploiement et elle répondait encore. Le démarrage à froid est donc la durée de création relevée par Terraform, 215 s, et non la durée de la première requête. Les deux réponses sont `HTTP 200`, avec une phrase dans `choices[0].message.content` (`raw/step0-first.txt`, `raw/step0-warm.txt`, `raw/step0-settings.txt`). Durées lues sur la ligne `real` de `time`, réseau compris.
 
 ## Une requête (étape 1)
 
@@ -18,14 +22,16 @@ Médiane de trois mesures par ligne, mesure à froid écartée.
 
 | Prompt (tokens) | Sortie (tokens) | Premier token (ms) | Tokens/s | Durée totale (s) | Contrôle (s) : premier token (ms) ÷ 1 000 + sortie ÷ tokens/s |
 | --- | --- | --- | --- | --- | --- |
-| 200 | 50 | ... | ... | ... | ... |
-| 200 | 200 | ... | ... | ... | ... |
-| 1 500 | 50 | ... | ... | ... | ... |
-| 1 500 | 200 | ... | ... | ... | ... |
+| 208 (demandé : 200) | 50 | 185 | 51,8 | 1,14 | 1,15 |
+| 209 (demandé : 200) | 200 | 214 | 51,5 | 4,09 | 4,10 |
+| 1 490 (demandé : 1 500) | 50 | 639 | 50,2 | 1,62 | 1,64 |
+| 1 490 (demandé : 1 500) | 200 | 659 | 50,4 | 4,61 | 4,63 |
 
-Écart entre la durée mesurée et le contrôle : ... %.
+Les prompts sont comptés par le serveur (écart de 4 % et 0,7 % au demandé). Les quatre lignes ont `erreurs` = 0 et `sortie (tokens)` égal à `--max-tokens` (50 ou 200), sans `--ignore-eos`. Aucun essai n'est plus de deux fois plus lent que les deux autres (`raw/step1-p*-m*.txt`). Une requête de chauffe, non notée, a précédé les mesures. Le premier token inclut l'aller-retour réseau du poste (117 ms médian, voir en tête de fichier).
 
-Conclusion : ce qui allonge le délai avant le premier token : ... ; ce qui allonge la durée totale : ...
+Écart entre la durée mesurée et le contrôle, `(mesurée - contrôle) / mesurée` : -0,9 % (200 / 50), -0,2 % (200 / 200), -0,9 % (1 500 / 50), -0,4 % (1 500 / 200). Le plus grand écart en valeur absolue est 0,93 % (ligne 1 500 / 50 : 1,62 s mesurée contre 1,64 s de contrôle) : la relation durée totale = premier token + sortie ÷ tokens/s tient à moins de 1 %.
+
+Conclusion : ce qui allonge le délai avant le premier token : la longueur du prompt (lecture ou prefill), de 185 ms à 208 tokens à 639 ms à 1 490 tokens, soit environ 454 ms de plus pour 1 282 tokens de prompt en plus, alors que la longueur de la réponse ne change pas le premier token (185 contre 214 ms et 639 contre 659 ms, écarts du bruit de mesure) ; ce qui allonge la durée totale : la longueur de la réponse (décodage), à environ 51 tokens/s quel que soit le prompt : passer de 50 à 200 tokens de sortie ajoute environ 3 s (1,14 à 4,09 s), alors que passer de 208 à 1 490 tokens de prompt n'ajoute que 0,5 s.
 
 ## Plusieurs requêtes (étape 2)
 
@@ -33,40 +39,56 @@ Prompt de 200 tokens, réponse de 200 tokens. Colonnes de `load.py`.
 
 | concurrence | prompt (tokens) | sortie (tokens) | premier token médian (ms) | premier token max (ms) | tokens/s par requête | durée totale (s) | débit total (tokens/s) | erreurs |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| 1 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 4 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 8 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 16 | 200 | 200 | ... | ... | ... | ... | ... | ... |
-| 32 | 200 | 200 | ... | ... | ... | ... | ... | ... |
+| 1 | 209 | 200 | 208 | 208 | 51,8 | 4,05 | 49,3 | 0 |
+| 4 | 210 | 200 | 665 | 666 | 23,1 | 9,30 | 86,1 | 0 |
+| 8 | 209 | 200 | 1 193 | 1 207 | 25,0 | 9,18 | 174,3 | 0 |
+| 16 | 209 | 200 | 1 642 | 2 253 | 25,5 | 9,51 | 336,4 | 0 |
+| 32 | 209 | 200 | 5 997 | 11 181 | 24,2 | 19,19 | 333,4 | 0 |
 
-Lecture faite pendant le palier à 8 (jamais à 16 : le `curl` serait la 17e requête d'un service à concurrence 16 et attendrait). Créneaux occupés (`/slots`) : ... ; `n_ctx` par créneau lu dans `/slots` : ... tokens ; requêtes en attente (`/metrics`) : ...
+Les cinq paliers ont la même `sortie (tokens)` (200, sans `--ignore-eos`) et `erreurs` = 0 (`raw/step2-c*.txt`). Chaque palier est une seule répétition (`--runs 1`).
 
-Saturation : le débit total ne monte plus à partir de ... requêtes simultanées, à ... tokens/s.
+Lecture faite pendant le palier à 8 (jamais à 16 : le `curl` serait la 17e requête d'un service à concurrence 16 et attendrait), 2 s après le départ de la charge (écart au mode opératoire, qui attend 5 s : par précaution, pour tomber en plein décodage avant la fin du palier, dont la durée n'était pas encore connue). Créneaux occupés (`/slots`) : 8 occupés sur 16 ; `n_ctx` par créneau lu dans `/slots` : 2 048 tokens (32 768 ÷ 16, comme annoncé) ; requêtes en attente (`/metrics`) : `llamacpp:requests_deferred` = 0, `llamacpp:requests_processing` = 8 (`raw/step2-slots.txt`, `raw/step2-metrics.txt`).
 
-Sort des requêtes au-delà de 16 (palier à 32) : ...
+Saturation : règle du plan, recopiée ici : la saturation est le premier palier dont le débit total gagne moins de 10 % sur le palier précédent ; le débit à saturation est le plus haut débit total mesuré. Gains du débit total d'un palier au suivant : 1 à 4 : +75 % (49,3 à 86,1) ; 4 à 8 : +102 % (86,1 à 174,3) ; 8 à 16 : +93 % (174,3 à 336,4) ; 16 à 32 : -0,9 % (336,4 à 333,4). Le premier palier sous 10 % est donc 32 : le débit total ne monte plus au-delà de 16 requêtes simultanées (autant que de créneaux et que la concurrence du service), à 336,4 tokens/s. Débit à saturation (le plus haut mesuré, palier à 16) : 336,4 tokens/s. Le débit par requête, lui, passe de 51,8 tokens/s à 1 requête à 23,1 à 4, puis reste entre 24,2 et 25,5 tokens/s de 8 à 32 : ce n'est pas la capacité du service, la capacité est le débit total.
+
+Sort des requêtes au-delà de 16 (palier à 32) : aucune n'est refusée : 32 réponses `200`, 0 erreur (pas de `429`). Cloud Run les met en file d'attente devant l'instance : les 16 premières sont servies tout de suite (premier token de 1 007 à 2 649 ms, médiane 1 974 ms ; durée de 9,4 à 10,9 s), les 16 autres attendent la fin des premières (premier token de 9 345 à 11 181 ms, médiane 10 640 ms ; durée de 18,1 à 18,9 s, médiane 18,7 s). Le délai d'attente s'ajoute donc au premier token (environ 8,6 s de plus en médiane) sans changer la vitesse de génération de chaque requête (24 à 26 tokens/s) ; la durée du palier double (9,5 s à 16, 19,2 s à 32) pour un débit total inchangé (`raw/step2-c32.txt`).
 
 ## Tracer (étape 4)
 
 | Étape du span | Durée (ms) | Tokens d'entrée | Tokens de sortie |
 | --- | --- | --- | --- |
-| `load_context` | ... | - | - |
-| `chat <modèle>` | ... | ... | ... |
-| `validate_json` | ... | - | - |
+| `load_context` | < 1 (0 à 2,5 ms) | - | - |
+| `chat qwen2.5-7b-instruct-q4_k_m` | 1 492 (977 à 1 592) | 576 (572 à 584) | 67 (45 à 77) |
+| `validate_json` | < 1 (0 ms) | - | - |
 
-Étape la plus lente : ...
+Médiane des cinq alertes (cinq traces `explain_alert`, projet `advanced-cloud-ai`, relues par l'API Cloud Trace : `raw/step4-traces.json` ; sorties du script avant et après instrumentation : `raw/step4-before.txt`, `raw/step4-after.txt`). Chaque trace contient `explain_alert` et ses trois spans enfants, et le span `chat ...` porte les cinq attributs (`gen_ai.operation.name`, `gen_ai.request.model`, `gen_ai.usage.input_tokens`, `gen_ai.usage.output_tokens`, `app.prompt.version` = `explain-v1`). Durée de `explain_alert` : 979 à 1 596 ms, médiane 1 492 ms. L'horloge de Windows a une résolution grossière : `load_context` et `validate_json` apparaissent à 0 ms (jusqu'à 2,5 ms), alors que le script imprime 0,001 s pour les deux. Trace retenue pour la capture : `f17f1c1064187f0ca327c510c54018e9` (572 tokens en entrée, 67 en sortie, 1 492 ms).
 
-Coût d'une alerte, à partir de ses tokens : ... $ (hypothèse de l'étape 3 : 800 tokens en entrée et 150 en sortie ; corrigée en : ...).
+Étape la plus lente : `chat qwen2.5-7b-instruct-q4_k_m`, l'appel au modèle : il occupe plus de 99,7 % de la durée de `explain_alert` dans chacune des cinq traces (977 à 1 592 ms sur 979 à 1 596 ms), contre moins de 3 ms pour les deux autres étapes réunies.
+
+Tokens réellement mesurés : 576 en entrée et 67 en sortie en médiane, contre 800 et 150 supposés dans l'énoncé.
+
+Coût d'une alerte, à partir de ses tokens : 0,000340 $ (576 × 0,30 + 67 × 2,50, par million de tokens, prix de l'API de `cout.md`) (hypothèse de l'étape 3 : 800 tokens en entrée et 150 en sortie, soit 0,000615 $ ; corrigée en : 576 en entrée et 67 en sortie).
+
+Ce que la correction change aux nombres de l'étape 3 : le coût par jour de l'API passe de 53,64 $ à 29,68 $ ; celui du GPU reste à 25,12 $ ; le volume de bascule monte de 40 840 à 73 807 alertes par jour ; le débit de sortie requis tombe de 151,4 à 67,6 tokens/s. Le GPU reste moins cher, mais de 4,56 $ par jour (15 %) au lieu de 28,52 $ : voir la section « Correction avec les tokens mesurés » de `cout.md` (`raw/step4-calc.txt`).
 
 ## Juger un candidat (étape 5)
 
-Règle écrite avant de lancer le jeu d'évaluation, à ... h ... :
+Règle écrite avant de lancer le jeu d'évaluation, à 23 h 54 (heure de la machine, `date '+%H:%M'`, le 24 novembre 2026) :
 
-- gain de score minimal exigé : ... point(s)
-- perte de débit tolérée : ... %
+- gain de score minimal exigé : 5 points (on passe en 8 bits seulement si score 8 bits - score 4 bits >= 5 points de score global)
+- perte de débit tolérée : 30 % (on tolère au plus 30 % de perte : 1 - débit 8 bits ÷ débit 4 bits <= 30 %)
+
+Origine de la règle : c'est la règle par défaut proposée par le plan de la séance (gain >= 5 points, perte <= 30 %). Elle a été adoptée en début de session, avant toute mesure du jeu d'évaluation, et consignée ici avant le premier lancement de `eval.py` ; l'horodatage de ce fichier et le commit « docs: TD7 step 5 rule written before evaluation » en font foi. Aucun score n'avait été lu à ce moment : seuls les débits des étapes 1 et 2 étaient mesurés. Le débit à saturation du 4 bits (étape 2) vaut 336,4 tokens/s ; la règle porte sur les deux colonnes du tableau (score et débit), pas sur la mémoire.
 
 | Modèle | Score (champs correctement extraits) | Débit (tokens/s) | Mémoire |
 | --- | --- | --- | --- |
-| 4 bits (notre service) | ... | ... | ... |
-| 8 bits (service de l'enseignant) | ... | ... (valeur affichée) | ... (valeur affichée) |
+| 4 bits (notre service) | 87,0 % (87 champs sur 100, 20 documents, prompt `kyc-extract-v1`) | 336,4 (débit total à saturation, palier à 16, étape 2) | 5,96 Gio sur le GPU (`CUDA0` : poids 4,07 + cache KV 1,75 + tampon de calcul 0,14 Gio), plus 0,29 Gio de poids en mémoire hôte (`CPU_Mapped`) |
+| 8 bits (score : service de l'enseignant ; mémoire : notre révision `td7-q8`) | 87,0 % (87 champs sur 100, mêmes 20 documents, prompt `kyc-extract-v1`) | non mesuré (voir la note ci-dessous) | 8,89 Gio sur le GPU (`CUDA0` : poids 7,00 + cache KV 1,75 + tampon de calcul 0,14 Gio), plus 0,54 Gio de poids en mémoire hôte (`CPU_Mapped`) |
 
-Décision, appliquée à la règle : ...
+Le service de l'enseignant (`teacher-llm`, `europe-west1`) existe : le score 8 bits est celui de `eval.py` lancé sur ce service (`raw/step5-eval-q8-teacher.txt`), sans le charger avec `load.py`. Même jeu de 20 documents, même prompt, que le score 4 bits (`raw/step5-eval-q4.txt`). Les mêmes 13 champs sont faux dans les deux cas (`doc_type` pour kyc-06 et kyc-19, `amount` pour 11 documents) ; la justesse par champ est identique (`doc_type` 90 %, `name`, `address` et `date` 100 %, `amount` 45 %), seules les valeurs fausses obtenues diffèrent pour kyc-03 (`None` en 4 bits, `strconv(802.87)` en 8 bits).
+
+Débit du 8 bits : non mesuré. L'enseignant n'a pas pu être interrogé pour la valeur qu'il affiche en classe, et son service ne se charge pas. Écart au mode opératoire : sur consigne de coût de l'équipe, notre propre révision `td7-q8` n'a pas été évaluée ni chargée (pas de palier à 16 en 8 bits) : le GPU a été détruit dès que sa mémoire a été lue dans les logs. Cette révision avait été déployée par `terraform apply` (`0 added, 1 changed`, 6 min 26 s, `raw/step5-apply-q8.txt`) avant la consigne ; sa mémoire vient de ses journaux de démarrage (`raw/step5-logs-q8.json`, `raw/step5-memory-q8.txt`), avec un filtre limité à la révision `team-ghv-llm-00002-t4b` : le filtre du mode opératoire, sur tout le service, additionnait les lignes des deux révisions (4 bits et 8 bits : 14,84 Gio, valeur fausse). Indication non comparable : le jeu d'évaluation a pris 29,5 s sur notre service 4 bits et 65,1 s sur celui de l'enseignant (autre région, service partagé).
+
+Décision, appliquée à la règle : la règle écrite à 23 h 54 exige un gain d'au moins 5 points de score ET une perte de débit d'au plus 30 % pour passer en 8 bits. Gain mesuré : 87,0 - 87,0 = 0 point, sous le minimum de 5 points : la première condition échoue, la perte de débit (non mesurée) ne peut plus changer la décision. Nous gardons le modèle 4 bits : il atteint le même score, tient dans 5,96 Gio de GPU contre 8,89 Gio pour le 8 bits (le 8 bits occupe 49 % de mémoire en plus), et son débit à saturation est mesuré (336,4 tokens/s). Le score est plafonné à 87,0 % dans les deux précisions par les mêmes erreurs sur `amount` (45 %) : ce n'est pas la précision du modèle qui limite le score sur ce jeu.
+
+Service détruit le 25 novembre 2026 à 00 h 10 (terraform destroy : « Destroy complete! Resources: 2 destroyed. », `raw/step9-destroy.txt`), aucun service team-ghv-llm listé en europe-west4 (`gcloud run services list` vide, `gcloud run services describe` répond « Cannot find service », compte de service team-ghv-llm supprimé). GPU allumé de 23 h 46 à 00 h 10, soit environ 24 minutes, dont environ 7 minutes avec une seconde révision (8 bits) en démarrage.

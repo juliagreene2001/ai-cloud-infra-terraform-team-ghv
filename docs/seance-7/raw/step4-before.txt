@@ -1,0 +1,10 @@
+7c318ce108be  contexte 0.001 s  modèle 1.66 s  validation 0.000 s  tokens 572 -> 67
+{"explanation": "La transaction est normale en termes de montant mais son score est élevé en raison de l'augmentation du ratio d'achat par rapport à la moyenne des 14 jours.", "risk_factors": ["amount_ratio_14d"], "recommended_action": "review"}
+3ebefcc5e7b0  contexte 0.001 s  modèle 1.66 s  validation 0.000 s  tokens 572 -> 77
+{"explanation": "La transaction est normale en termes de montant mais son score est légèrement au-dessus du seuil, probablement en raison de l'augmentation du ratio d'achat par rapport à la moyenne des 14 jours.", "risk_factors": ["amount_ratio_14d"], "recommended_action": "review"}
+6e3b9932a266  contexte 0.001 s  modèle 1.31 s  validation 0.000 s  tokens 581 -> 53
+{"explanation": "La transaction est faible en montant mais a un score élevé, ce qui est inhabituel. Les ratios d'achat récents sont normaux.", "risk_factors": ["score"], "recommended_action": "review"}
+f40555456054  contexte 0.001 s  modèle 1.64 s  validation 0.000 s  tokens 584 -> 73
+{"explanation": "La transaction présente un score élevé de fraude, principalement en raison de la forte augmentation du montant par rapport à la moyenne des derniers jours.", "risk_factors": ["amount_ratio_1d", "amount_ratio_7d", "amount_ratio_14d"], "recommended_action": "review"}
+375ade3de6de  contexte 0.001 s  modèle 1.12 s  validation 0.000 s  tokens 576 -> 45
+{"explanation": "La transaction est faible en montant mais le score est élevé, ce qui suggère une anomalie.", "risk_factors": ["score"], "recommended_action": "review"}

@@ -1,0 +1,13 @@
+hourly = 1.046520
+cost_per_M_100 = 0.864150
+cost_per_M_20 = 4.320749
+api_alert = 0.000615
+api_day = 53.637840
+gpu_day = 25.116480
+switch = 40839.804878
+required_tps = 151.416667
+measured_tps = 336.400000
+margin = 2.221684
+gpu_per_M_out_100 = 0.864150
+api_out = 2.500000
+occupancy_mean = 0.450109

@@ -1,0 +1,4 @@
+        autoscaling.knative.dev/maxScale: '1'
+      containerConcurrency: 16
+            nvidia.com/gpu: '1'
+        run.googleapis.com/accelerator: nvidia-l4

@@ -1,0 +1,122 @@
+[
+  {
+    "insertId": "6b0614a20002103de4d94836",
+    "labels": {
+      "instanceId": "00e8a408bd80505ad2c79313d55c7698121b2770f526ca4b717ccae295f0de8df3ed75ac250b690b9651d69c730c156b04d686e6c239ea353a5b437a1cadc27895c0e5753ebda818ed3f2b44efdf267710358e2a6fbbfcf0b092"
+    },
+    "logName": "projects/advanced-cloud-ai/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-11-24T22:50:10.399488639Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "team-ghv-llm",
+        "location": "europe-west4",
+        "project_id": "advanced-cloud-ai",
+        "revision_name": "team-ghv-llm-00001-gtl",
+        "service_name": "team-ghv-llm"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "0.06.168.404 I sched_reserve:  CUDA_Host compute buffer size =    30.02 MiB",
+    "timestamp": "2026-11-24T22:50:10.135229Z"
+  },
+  {
+    "insertId": "6b0614a2000210379cf3c284",
+    "labels": {
+      "instanceId": "00e8a408bd80505ad2c79313d55c7698121b2770f526ca4b717ccae295f0de8df3ed75ac250b690b9651d69c730c156b04d686e6c239ea353a5b437a1cadc27895c0e5753ebda818ed3f2b44efdf267710358e2a6fbbfcf0b092"
+    },
+    "logName": "projects/advanced-cloud-ai/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-11-24T22:50:10.399488639Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "team-ghv-llm",
+        "location": "europe-west4",
+        "project_id": "advanced-cloud-ai",
+        "revision_name": "team-ghv-llm-00001-gtl",
+        "service_name": "team-ghv-llm"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "0.06.168.392 I sched_reserve:      CUDA0 compute buffer size =   141.01 MiB",
+    "timestamp": "2026-11-24T22:50:10.135223Z"
+  },
+  {
+    "insertId": "6b0614a20001b8a1eea18a6b",
+    "labels": {
+      "instanceId": "00e8a408bd80505ad2c79313d55c7698121b2770f526ca4b717ccae295f0de8df3ed75ac250b690b9651d69c730c156b04d686e6c239ea353a5b437a1cadc27895c0e5753ebda818ed3f2b44efdf267710358e2a6fbbfcf0b092"
+    },
+    "logName": "projects/advanced-cloud-ai/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-11-24T22:50:10.399488639Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "team-ghv-llm",
+        "location": "europe-west4",
+        "project_id": "advanced-cloud-ai",
+        "revision_name": "team-ghv-llm-00001-gtl",
+        "service_name": "team-ghv-llm"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "0.06.145.998 I llama_kv_cache:      CUDA0 KV buffer size =  1792.00 MiB",
+    "timestamp": "2026-11-24T22:50:10.112801Z"
+  },
+  {
+    "insertId": "6b0614a20001972502a675a5",
+    "labels": {
+      "instanceId": "00e8a408bd80505ad2c79313d55c7698121b2770f526ca4b717ccae295f0de8df3ed75ac250b690b9651d69c730c156b04d686e6c239ea353a5b437a1cadc27895c0e5753ebda818ed3f2b44efdf267710358e2a6fbbfcf0b092"
+    },
+    "logName": "projects/advanced-cloud-ai/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-11-24T22:50:10.399488639Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "team-ghv-llm",
+        "location": "europe-west4",
+        "project_id": "advanced-cloud-ai",
+        "revision_name": "team-ghv-llm-00001-gtl",
+        "service_name": "team-ghv-llm"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "0.06.137.416 I llama_context:  CUDA_Host  output buffer size =     9.28 MiB",
+    "timestamp": "2026-11-24T22:50:10.104229Z"
+  },
+  {
+    "insertId": "6b0614a100020259e3234111",
+    "labels": {
+      "instanceId": "00e8a408bd80505ad2c79313d55c7698121b2770f526ca4b717ccae295f0de8df3ed75ac250b690b9651d69c730c156b04d686e6c239ea353a5b437a1cadc27895c0e5753ebda818ed3f2b44efdf267710358e2a6fbbfcf0b092"
+    },
+    "logName": "projects/advanced-cloud-ai/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-11-24T22:50:09.401669886Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "team-ghv-llm",
+        "location": "europe-west4",
+        "project_id": "advanced-cloud-ai",
+        "revision_name": "team-ghv-llm-00001-gtl",
+        "service_name": "team-ghv-llm"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "0.05.164.680 I load_tensors:        CUDA0 model buffer size =  4168.09 MiB",
+    "timestamp": "2026-11-24T22:50:09.131673Z"
+  },
+  {
+    "insertId": "6b0614a100020257d34927b1",
+    "labels": {
+      "instanceId": "00e8a408bd80505ad2c79313d55c7698121b2770f526ca4b717ccae295f0de8df3ed75ac250b690b9651d69c730c156b04d686e6c239ea353a5b437a1cadc27895c0e5753ebda818ed3f2b44efdf267710358e2a6fbbfcf0b092"
+    },
+    "logName": "projects/advanced-cloud-ai/logs/run.googleapis.com%2Fstderr",
+    "receiveTimestamp": "2026-11-24T22:50:09.401669886Z",
+    "resource": {
+      "labels": {
+        "configuration_name": "team-ghv-llm",
+        "location": "europe-west4",
+        "project_id": "advanced-cloud-ai",
+        "revision_name": "team-ghv-llm-00001-gtl",
+        "service_name": "team-ghv-llm"
+      },
+      "type": "cloud_run_revision"
+    },
+    "textPayload": "0.05.164.679 I load_tensors:   CPU_Mapped model buffer size =   292.36 MiB",
+    "timestamp": "2026-11-24T22:50:09.131671Z"
+  }
+]

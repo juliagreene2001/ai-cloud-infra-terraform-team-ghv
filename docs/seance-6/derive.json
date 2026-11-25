@@ -1,0 +1,16 @@
+[
+  {
+    "montant_median": "52.38", 
+    "montant_p95": "98.51", 
+    "semaine": "10-16 sept", 
+    "taux_fraude": "0.009008880548917166", 
+    "tx_par_client_jour": "2.6644630862283947"
+  }, 
+  {
+    "montant_median": "52.36", 
+    "montant_p95": "98.47", 
+    "semaine": "24-30 sept", 
+    "taux_fraude": "0.012360064685001665", 
+    "tx_par_client_jour": "2.6687119821610152"
+  }
+]

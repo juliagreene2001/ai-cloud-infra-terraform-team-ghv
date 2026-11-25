@@ -90,8 +90,17 @@ def check_plan(plan: dict) -> None:
         elif kind == "google_pubsub_subscription":
             if values.get("project") != "advanced-cloud-ai":
                 raise ValueError("Unexpected Pub/Sub project")
-            if values.get("name") not in (f"{TEAM}-tx-push", f"{TEAM}-tx-dead-pull"):
+            if values.get("name") not in (
+                f"{TEAM}-tx-push",
+                f"{TEAM}-tx-dead-pull",
+                f"{TEAM}-shadow",
+            ):
                 raise ValueError("Unexpected Pub/Sub subscription")
+        elif kind == "google_monitoring_alert_policy":
+            if values.get("project") != "advanced-cloud-ai":
+                raise ValueError("Unexpected alert-policy project")
+            if values.get("display_name") != f"{TEAM}-scorer-release":
+                raise ValueError("Unexpected alert policy")
         else:
             raise ValueError(f"Unreviewed resource type: {kind}")
 
