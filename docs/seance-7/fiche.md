@@ -4,7 +4,7 @@ Une page. Chaque rubrique cite l'étape dont elle tire ses chiffres.
 
 ## Usage et volume (étapes 3 et 4)
 
-Alertes par jour : 87 216 ; tokens d'entrée par alerte : 576 ; tokens de sortie par alerte : 67 (mesurés dans une trace, médiane de cinq alertes ; identifiant de la trace : f17f1c1064187f0ca327c510c54018e9). Le cours supposait 800 et 150 : l'écart réduit le coût de l'API de 53,64 $ à 29,68 $ par jour (`cout.md`).
+Alertes par jour : 87 216 ; tokens d'entrée par alerte : 576 ; tokens de sortie par alerte : 67 (médiane de cinq traces ; trace capturée dans `trace.png`, identifiant b692a4208d8244750a07a65015c5fba9 : 584 tokens en entrée, 75 en sortie, 1 563 ms). Le cours supposait 800 et 150 : l'écart réduit le coût de l'API de 53,64 $ à 29,68 $ par jour (`cout.md`).
 
 ## Modèle et précision (étape 5)
 
